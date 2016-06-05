@@ -1,0 +1,43 @@
+#!/bin/bash
+
+destination="$1"
+arch="$2"
+
+echo "Cross-Compiling binutils for $arch at $destination"
+
+download_dir="$destination/packages"
+destionation_dir="$destination/dist"
+
+cd $download_dir
+if [ ! -d "binutils-2.26" ]; then
+  wget http://ftp.gnu.org/gnu/binutils/binutils-2.26.tar.gz
+  tar -xf binutils-2.26.tar.gz
+fi
+
+cd "$download_dir/binutils-2.26"
+if [ -f "done.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$download_dir/binutils-2.26/build"
+
+target=''
+
+if [ "x$arch" == "xrpi" ]; then
+  target="arm-linux-gnueabihf"
+elif [ "x$arch" == "xrpi3" ]; then
+  target="aarch64-linux-gnu"
+fi
+
+echo "../configure --prefix=$destination_dir --target=$target --with-sysroot"
+../configure --prefix=$destination_dir --target=$target --with-sysroot
+make
+make install
+
+cd ..
+touch "done.lock"

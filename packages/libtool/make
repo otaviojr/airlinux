@@ -1,0 +1,36 @@
+#!/bin/bash
+
+destination="$1"
+arch="$2"
+
+echo "Cross-Compiling libtool for $arch at $destination"
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+
+cd $download_dir
+if [ ! -d "libtool-2.4.2" ]; then
+  wget http://gnu.c3sl.ufpr.br/ftp/libtool/libtool-2.4.2.tar.gz
+  tar -xf libtool-2.4.2.tar.gz
+fi
+
+cd "$download_dir/libtool-2.4.2"
+if [ -f "done.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=''
+
+if [ "x$arch" == "xrpi" ]; then
+  target="arm-linux-gnueabihf"
+elif [ "x$arch" == "xrpi3" ]; then
+  target="aarch64-linux-gnu"
+fi
+
+echo "./configure --prefix=$destination_dir --target=$target --with-sysroot"
+./configure --prefix=$destination_dir --target=$target --with-sysroot
+make
+make install
+
+touch "done.lock"

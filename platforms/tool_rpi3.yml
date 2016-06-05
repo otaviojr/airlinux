@@ -1,0 +1,5 @@
+packages: [
+{ package: "binutils", script: "make" },
+{ package: "libtool", script: "make" },
+{ package: "gcc", script: "make", parameters: ["stage1"] }
+]

@@ -1,0 +1,62 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+echo "Cross-Compiling gcc for $arch at $destination - stage: $stage"
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+
+cd $download_dir
+if [ ! -d "gcc-6.1.0" ]; then
+  wget http://www.netgull.com/gcc/releases/gcc-6.1.0/gcc-6.1.0.tar.gz
+  tar -xf gcc-6.1.0.tar.gz
+fi
+
+cd "$download_dir/gcc-6.1.0"
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ ! -d "gmp" ]; then
+  wget https://gmplib.org/download/gmp/gmp-6.1.0.tar.xz
+  tar -xf gmp-6.1.0.tar.xz
+  mv gmp-6.1.0 gmp
+fi
+
+if [ ! -d "mpfr" ]; then
+  wget http://www.mpfr.org/mpfr-current/mpfr-3.1.4.tar.xz
+  tar -xf mpfr-3.1.4.tar.xz
+  mv mpfr-3.1.4 mpfr
+fi
+
+if [ ! -d "mpc" ]; then
+  wget ftp://ftp.gnu.org/gnu/mpc/mpc-1.0.3.tar.gz
+  tar -xf mpc-1.0.3.tar.gz
+  mv mpc-1.0.3 mpc
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$download_dir/gcc-6.1.0/build"
+
+target=''
+
+if [ "x$arch" == "xrpi" ]; then
+  target="arm-linux-gnueabihf"
+elif [ "x$arch" == "xrpi3" ]; then
+  target="aarch64-linux-gnu"
+fi
+
+echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+make all-gcc
+make install-gcc
+
+cd ..
+touch "done-$stage.lock"
