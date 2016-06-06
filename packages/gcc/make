@@ -4,6 +4,9 @@ stage="$1"
 destination="$2"
 arch="$3"
 
+#Include our common functions
+. ./packages/common/functions
+
 echo "Cross-Compiling gcc for $arch at $destination - stage: $stage"
 
 download_dir="$destination/packages"
@@ -45,18 +48,42 @@ fi
 mkdir "build"
 cd "$download_dir/gcc-6.1.0/build"
 
-target=''
+target=$(get_target_for_arch $arch)
 
-if [ "x$arch" == "xrpi" ]; then
-  target="arm-linux-gnueabihf"
-elif [ "x$arch" == "xrpi3" ]; then
-  target="aarch64-linux-gnu"
+#Without this gcc will fail to install
+if [ ! -d "$destination_dir/usr/include" ]; then
+  mkdir -p "$destination_dir/usr/include"
 fi
 
-echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-make all-gcc
-make install-gcc
+if [ "x$stage" == "xstage1" ]; then
+  echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+  ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+  make all-gcc
+  make install-gcc
+elif [ "x$stage" == "xstage2" ]; then
+  echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+  ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
+  make all-target-libgcc
+  make install-target-libgcc
+elif [ "x$stage" == "xstage3" ]; then
+  echo ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c --enable-shared --disable-libssp --disable-libquadmath --disable-libgomp --disable-libatomic --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir
+  ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c --enable-shared --disable-libssp --disable-libquadmath --disable-libgomp --disable-libatomic --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir
+
+  make all-gcc
+  make install-gcc
+
+  make all-target-libgcc
+  make install-target-libgcc
+
+  make
+  make prefix=$destination_dir install
+elif [ "x$stage" == "xstage4" ]; then
+  echo ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c,c++ --enable-shared --enable-threads=posix --disable-checking --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir libc_cv_forced_unwind=yes
+  ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c,c++ --enable-shared --enable-threads=posix --disable-checking --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir libc_cv_forced_unwind=yes
+
+  make -j4
+  make prefix=$destination_dir install
+fi
 
 cd ..
 touch "done-$stage.lock"

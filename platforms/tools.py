@@ -53,8 +53,13 @@ else:
     print "Configuring packages: %s" % packages_names
     for package in packages:
         app = [os.path.join("packages",package["package"],package["script"])]
+        os.chmod("".join(app),0775)
         if "parameters" in package and package["parameters"] != None:
             app += package["parameters"]
         app += [destination,arch]
         print "Executing: %s" % app
         subprocess.call(app)
+        try:
+            input("Press enter to continue")
+        except SyntaxError:
+            pass

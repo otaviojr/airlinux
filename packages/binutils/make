@@ -3,10 +3,13 @@
 destination="$1"
 arch="$2"
 
+#Include our common functions
+. ./packages/common/functions
+
 echo "Cross-Compiling binutils for $arch at $destination"
 
 download_dir="$destination/packages"
-destionation_dir="$destination/dist"
+destination_dir="$destination/dist"
 
 cd $download_dir
 if [ ! -d "binutils-2.26" ]; then
@@ -26,13 +29,7 @@ fi
 mkdir "build"
 cd "$download_dir/binutils-2.26/build"
 
-target=''
-
-if [ "x$arch" == "xrpi" ]; then
-  target="arm-linux-gnueabihf"
-elif [ "x$arch" == "xrpi3" ]; then
-  target="aarch64-linux-gnu"
-fi
+target=$(get_target_for_arch $arch)
 
 echo "../configure --prefix=$destination_dir --target=$target --with-sysroot"
 ../configure --prefix=$destination_dir --target=$target --with-sysroot

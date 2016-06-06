@@ -1,4 +1,4 @@
 airlinux
 ========
 
-Embeded linux based on Ubuntu
+Script to Cross-Compile all tools and linux system from scratch for a specific platform. 

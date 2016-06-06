@@ -1,0 +1,82 @@
+#!/bin/bash
+echo "Util functions initialized"
+
+function get_macro_target_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    target="arm"
+  elif [ "x$arch" == "xrpi3" ]; then
+    target="arm64"
+  fi
+	echo "$target"
+}
+
+function get_target_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    target="arm-linux-gnueabihf"
+  elif [ "x$arch" == "xrpi3" ]; then
+    target="aarch64-linux-gnu"
+  fi
+	echo "$target"
+}
+
+function get_prefix_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    prefix="arm-linux-gnueabihf"
+  elif [ "x$arch" == "xrpi3" ]; then
+    prefix="aarch64-linux-gnu"
+  fi
+	echo "$prefix"
+}
+
+function get_cflags_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    flags="-O2 -U_FORTIFY_SOURCE -fno-stack-protector -march=arm -mfpu=vfp -ftree-vectorize -mfloat-abi=hard"
+  elif [ "x$arch" == "xrpi3" ]; then
+    flags="-O2 -U_FORTIFY_SOURCE -fno-stack-protector -ftree-vectorize"
+  fi
+	echo "$flags"
+}
+
+## file_has_content function
+##
+## arguments:
+## $1 => the filename to check content inside
+## $2 => A regular expression to search inside the file
+##
+## return:
+## 1 if the content has been find, or, 0 if the content is missing.
+##
+function file_has_content() {
+	file=$1
+	regex=$2
+
+	file_content=$( cat "${file}" )
+	if [[ " $file_content " =~ $regex ]]; # please note the space before and after the file content
+	    then
+	        return 1
+	fi
+	return 0
+}
+
+function get_distro_name() {
+  # Determine OS platform
+  UNAME=$(uname | tr "[:upper:]" "[:lower:]")
+  # If Linux, try to determine specific distribution
+  if [ "$UNAME" == "linux" ]; then
+      # If available, use LSB to identify distribution
+      if [ -f /etc/lsb-release -o -d /etc/lsb-release.d ]; then
+          DISTRO=$(lsb_release -i | cut -d: -f2 | sed s/'^\t'//)
+      # Otherwise, use release info file
+      else
+          DISTRO=$(ls -d /etc/[A-Za-z]*[_-][rv]e[lr]* | grep -v "lsb" | cut -d'/' -f3 | cut -d'-' -f1 | cut -d'_' -f1)
+      fi
+  fi
+  # For everything else (or if above failed), just use generic identifier
+  [ "$DISTRO" == "" ] && DISTRO=$UNAME
+  unset UNAME
+  echo $DISTRO | tr '[:upper:]' '[:lower:]'
+}

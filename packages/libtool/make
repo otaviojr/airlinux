@@ -3,6 +3,9 @@
 destination="$1"
 arch="$2"
 
+#Include our common functions
+. ./packages/common/functions
+
 echo "Cross-Compiling libtool for $arch at $destination"
 
 download_dir="$destination/packages"
@@ -20,13 +23,7 @@ if [ -f "done.lock" ]; then
   exit 0
 fi
 
-target=''
-
-if [ "x$arch" == "xrpi" ]; then
-  target="arm-linux-gnueabihf"
-elif [ "x$arch" == "xrpi3" ]; then
-  target="aarch64-linux-gnu"
-fi
+target=$(get_target_for_arch $arch)
 
 echo "./configure --prefix=$destination_dir --target=$target --with-sysroot"
 ./configure --prefix=$destination_dir --target=$target --with-sysroot

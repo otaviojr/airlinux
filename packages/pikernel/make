@@ -1,0 +1,42 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling Pi-Kernel for $arch at $destination - stage: $stage"
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+
+cd $download_dir
+if [ ! -d "pikernel" ]; then
+  git clone -b rpi-4.7.y https://github.com/raspberrypi/linux.git pikernel
+fi
+
+cd "$download_dir/pikernel"
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+macro_target=$(get_macro_target_for_arch $arch)
+target=$(get_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+
+export PATH=$PATH:$destination/dist/bin
+if [ "x$stage" == "xheaders" ]; then
+  KERNEL=kernel7
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/usr headers_install
+  chmod 775 $download_dir/pikernel/arch/arm/configs/bcm2709_defconfig
+  $download_dir/pikernel/arch/arm/configs/bcm2709_defconfig
+fi
+
+if [ "x$stage" != "xheaders" ]; then
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs
+fi
+
+touch "done-$stage.lock"

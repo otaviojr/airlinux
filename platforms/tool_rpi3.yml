@@ -1,5 +1,12 @@
 packages: [
 { package: "binutils", script: "make" },
 { package: "libtool", script: "make" },
-{ package: "gcc", script: "make", parameters: ["stage1"] }
+{ package: "gcc", script: "make", parameters: ["stage1"] },
+{ package: "pikernel", script: "make", parameters: ["headers"] },
+{ package: "glibc", script: "make", parameters: ["headers"] },
+{ package: "gcc", script: "make", parameters: ["stage2"] },
+{ package: "glibc", script: "make", parameters: ["stage1"] },
+{ package: "gcc", script: "make", parameters: ["stage3"] },
+{ package: "glibc", script: "make", parameters: ["stage2"] },
+{ package: "gcc", script: "make", parameters: ["stage4"] },
 ]

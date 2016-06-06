@@ -1,0 +1,88 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling glibc for $arch at $destination - stage: $stage"
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+
+cd $download_dir
+if [ ! -d "glibc-2.23" ]; then
+  wget http://ftp.gnu.org/gnu/glibc/glibc-2.23.tar.xz
+  tar -xf glibc-2.23.tar.xz
+fi
+
+cd "$download_dir/glibc-2.23"
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$download_dir/glibc-2.23/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+
+#Without this gcc will fail to install
+#if [ ! -d "$destination_dir/usr/include" ]; then
+#  mkdir -p "$destination_dir/usr/include"
+#fi
+
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install gawk
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
+if [ "x$stage" == "xheaders" ]; then
+  echo ../configure --prefix=$destination_dir/usr --host=$target --without-cvs --disable-profile
+  ../configure --prefix=$destination_dir/usr --host=$target --without-cvs --disable-profile
+  make -k cross-compiling=yes install-headers
+
+  touch $destination_dir/usr/include/gnu/stubs.h
+  touch $destination_dir/usr/include/gnu/stubs-soft.h
+  touch $destination_dir/usr/include/gnu/stubs-32.h
+elif [ "x$stage" == "xstage1" ]; then
+  libc_cv_forced_unwind=yes \
+  libc_cv_c_cleanup=yes \
+  export libc_cv_forced_unwind libc_cv_c_cleanup \
+  export ARCH=$macro_target \
+  export CROSS_COMPILE=$prefix- \
+  export CFLAGS="$cflags -Wno-error=parentheses" \
+  #export BUILD_CC=gcc \
+  export CC=$prefix-gcc \
+  export AR=$prefix-ar \
+  export AS=$prefix-as \
+  export RANLIB=$prefix-ranlib \
+  export PATH=$PATH:$destination_dir/bin
+
+  ../configure --prefix=$destination_dir/usr --build=$prefix --target=$prefix --enable-shared --without-cvs --disable-profile --disable-debug --without-gd --with-elf
+
+  make LD=$prefix-ld RANLIB=$prefix-ranlib lib
+  make install-lib-all
+elif [ "x$stage" == "xstage2" ]; then
+  export CFLAGS="$cflags -Wno-error=parentheses"
+
+  ../configure --prefix= --host=$prefix --target=$prefix --enable-shared --with-elf --includedir=/usr/include --datarootdir=/usr/share
+
+  make LD=$prefix-ld RANLIB=$prefix-ranlib all
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"
