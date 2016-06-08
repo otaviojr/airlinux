@@ -1,7 +1,8 @@
 #!/bin/bash
 
-destination="$1"
-arch="$2"
+stage="$1"
+destination="$2"
+arch="$3"
 
 #Include our common functions
 . ./packages/common/functions
@@ -10,6 +11,7 @@ echo "Cross-Compiling binutils for $arch at $destination"
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+cflags=$(get_cflags_for_arch $arch)
 
 cd $download_dir
 if [ ! -d "binutils-2.26" ]; then
@@ -18,7 +20,7 @@ if [ ! -d "binutils-2.26" ]; then
 fi
 
 cd "$download_dir/binutils-2.26"
-if [ -f "done.lock" ]; then
+if [ -f "done-$stage.lock" ]; then
   echo "Already done. Skiping..."
   exit 0
 fi
@@ -31,10 +33,12 @@ cd "$download_dir/binutils-2.26/build"
 
 target=$(get_target_for_arch $arch)
 
-echo "../configure --prefix=$destination_dir --target=$target --with-sysroot"
-../configure --prefix=$destination_dir --target=$target --with-sysroot
-make
-make install
+if [ "x$stage" == "xstage1" ]; then
+  echo "../configure --prefix=$destination_dir --target=$target --enable-shared --with-sysroot=$destination_dir"
+  ../configure --prefix=$destination_dir --target=$target --enable-shared --with-sysroot=$destination_dir
+  make
+  make install
+fi
 
 cd ..
-touch "done.lock"
+touch "done-$stage.lock"

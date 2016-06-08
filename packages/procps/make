@@ -1,0 +1,54 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling procps for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/procps-3.2.8"
+
+cd $download_dir
+if [ ! -d "module-init-tools-3.12" ]; then
+  wget http://procps.sourceforge.net/procps-3.2.8.tar.gz
+  tar -xf procps-3.2.8.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags"
+export ARCH=$macro_target
+export CROSS_COMPILE=$prefix-
+export BUILD_CC=gcc
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export RANLIB=$prefix-ranlib
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

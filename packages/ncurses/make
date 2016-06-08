@@ -1,0 +1,58 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling ncruses for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/ncurses-6.0"
+
+cd $download_dir
+if [ ! -d "ncurses-6.0" ]; then
+  wget ftp://invisible-island.net/ncurses/ncurses-6.0.tar.gz
+  tar -xf ncurses-6.0.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/MKlib_gen.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags"
+
+if [ "x$stage" == "xall" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  echo ../configure --prefix= --host=$target --with-shared --enable_widec --with-termlib
+  ../configure --prefix= --host=$target --with-shared --enable-widec --with-termlib
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

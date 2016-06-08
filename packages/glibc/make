@@ -3,14 +3,18 @@
 stage="$1"
 destination="$2"
 arch="$3"
+cross_tools="$4"
 
 #Include our common functions
 . ./packages/common/functions
 
 echo "Cross-Compiling glibc for $arch at $destination - stage: $stage"
 
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_dir="$download_dir/glibc-2.23"
 
 cd $download_dir
 if [ ! -d "glibc-2.23" ]; then
@@ -18,7 +22,7 @@ if [ ! -d "glibc-2.23" ]; then
   tar -xf glibc-2.23.tar.xz
 fi
 
-cd "$download_dir/glibc-2.23"
+cd $package_dir
 if [ -f "done-$stage.lock" ]; then
   echo "Already done. Skiping..."
   exit 0
@@ -28,17 +32,12 @@ if [ -d "build" ]; then
   rm -rf "build"
 fi
 mkdir "build"
-cd "$download_dir/glibc-2.23/build"
+cd "$package_dir/build"
 
 target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
-
-#Without this gcc will fail to install
-#if [ ! -d "$destination_dir/usr/include" ]; then
-#  mkdir -p "$destination_dir/usr/include"
-#fi
 
 distro=$(get_distro_name)
 
@@ -49,40 +48,43 @@ else
   exit 1
 fi
 
-if [ "x$stage" == "xheaders" ]; then
-  echo ../configure --prefix=$destination_dir/usr --host=$target --without-cvs --disable-profile
-  ../configure --prefix=$destination_dir/usr --host=$target --without-cvs --disable-profile
-  make -k cross-compiling=yes install-headers
+export ARCH=$macro_target
+export CROSS_COMPILE=$prefix-
+export CFLAGS="$cflags -Wno-error=parentheses -Wno-error=attributes -Wno-error=int-to-pointer-cast -Wno-error=implicit-function-declaration"
+export BUILD_CC=gcc
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export RANLIB=$prefix-ranlib
 
-  touch $destination_dir/usr/include/gnu/stubs.h
-  touch $destination_dir/usr/include/gnu/stubs-soft.h
-  touch $destination_dir/usr/include/gnu/stubs-32.h
-elif [ "x$stage" == "xstage1" ]; then
-  libc_cv_forced_unwind=yes \
-  libc_cv_c_cleanup=yes \
-  export libc_cv_forced_unwind libc_cv_c_cleanup \
-  export ARCH=$macro_target \
-  export CROSS_COMPILE=$prefix- \
-  export CFLAGS="$cflags -Wno-error=parentheses" \
-  #export BUILD_CC=gcc \
-  export CC=$prefix-gcc \
-  export AR=$prefix-ar \
-  export AS=$prefix-as \
-  export RANLIB=$prefix-ranlib \
+if [ "x$stage" == "xstage1" ]; then
   export PATH=$PATH:$destination_dir/bin
-
-  ../configure --prefix=$destination_dir/usr --build=$prefix --target=$prefix --enable-shared --without-cvs --disable-profile --disable-debug --without-gd --with-elf
-
-  make LD=$prefix-ld RANLIB=$prefix-ranlib lib
-  make install-lib-all
-elif [ "x$stage" == "xstage2" ]; then
-  export CFLAGS="$cflags -Wno-error=parentheses"
-
-  ../configure --prefix= --host=$prefix --target=$prefix --enable-shared --with-elf --includedir=/usr/include --datarootdir=/usr/share
-
-  make LD=$prefix-ld RANLIB=$prefix-ranlib all
+  echo ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
+  ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
+  make
   make DESTDIR=$destination_dir install
+elif [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CROSS_COMPILE=$prefix-
+  echo ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
+  ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
+  make
+  make DESTDIR=$destination_dir install
+elif [ "x$stage" == "xconfigs" ]; then
+  export current_dir
+  export download_dir
+  export destination_dir
+  export arch
+  $current_dir/config/$arch/make
 fi
+
+unset ARCH
+unset CROSS_COMPILE
+unset CFLAGS
+unset CC
+unset AR
+unset AS
+unset RANLIB
 
 cd ..
 touch "done-$stage.lock"

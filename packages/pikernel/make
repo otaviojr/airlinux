@@ -11,6 +11,7 @@ echo "Cross-Compiling Pi-Kernel for $arch at $destination - stage: $stage"
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+cross_tools="$4"
 
 cd $download_dir
 if [ ! -d "pikernel" ]; then
@@ -27,16 +28,30 @@ macro_target=$(get_macro_target_for_arch $arch)
 target=$(get_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 
-export PATH=$PATH:$destination/dist/bin
-if [ "x$stage" == "xheaders" ]; then
-  KERNEL=kernel7
-  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/usr headers_install
-  chmod 775 $download_dir/pikernel/arch/arm/configs/bcm2709_defconfig
-  $download_dir/pikernel/arch/arm/configs/bcm2709_defconfig
+if [ "x$macro_target" == "xarm" ]; then
+  config="bcm2709_defconfig"
+else
+  echo "Unsupported macro target"
 fi
 
-if [ "x$stage" != "xheaders" ]; then
+if [ "x$stage" == "xheaders" ]; then
+  export PATH=$PATH:$destination/dist/bin
+  export KERNEL=kernel7
+  make distclean
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- $config
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/ headers_install
+elif [ "x$stage" == "xfull" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+  export KERNEL=kernel7
+  make distclean
+  echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- $config"
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- $config
+  echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/ headers_install"
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/ headers_install
+  echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs
+  echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- modules_install"
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$destination_dir/boot modules_install
 fi
 
 touch "done-$stage.lock"

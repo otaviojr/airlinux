@@ -1,7 +1,8 @@
 #!/bin/bash
 
-destination="$1"
-arch="$2"
+stage="$1"
+destination="$2"
+arch="$3"
 
 #Include our common functions
 . ./packages/common/functions
@@ -18,16 +19,16 @@ if [ ! -d "libtool-2.4.2" ]; then
 fi
 
 cd "$download_dir/libtool-2.4.2"
-if [ -f "done.lock" ]; then
+if [ -f "done-$stage.lock" ]; then
   echo "Already done. Skiping..."
   exit 0
 fi
 
 target=$(get_target_for_arch $arch)
 
-echo "./configure --prefix=$destination_dir --target=$target --with-sysroot"
-./configure --prefix=$destination_dir --target=$target --with-sysroot
+echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
+./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
 make
-make install
+make DESTDIR=$destination_dir install
 
-touch "done.lock"
+touch "done-$stage.lock"

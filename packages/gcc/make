@@ -3,6 +3,7 @@
 stage="$1"
 destination="$2"
 arch="$3"
+cross_tools="$4"
 
 #Include our common functions
 . ./packages/common/functions
@@ -49,40 +50,63 @@ mkdir "build"
 cd "$download_dir/gcc-6.1.0/build"
 
 target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
 
 #Without this gcc will fail to install
 if [ ! -d "$destination_dir/usr/include" ]; then
   mkdir -p "$destination_dir/usr/include"
 fi
 
+export PATH=$PATH:$destination_dir/bin
+
 if [ "x$stage" == "xstage1" ]; then
-  echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-  ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit -without-headers --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-  make all-gcc
-  make install-gcc
+  echo "../configure --target=$target --prefix=$destination_dir --with-glibc-version=2.23 --with-sysroot=$destination_dir --with-newlib --without-headers --with-local-prefix=$destination_dir --with-native-system-header-dir=$destination_dir/include --disable-nls --disable-shared --disable-multilib --disable-decimal-float --disable-threads --disable-libatomic --disable-libgomp --disable-libmpx --disable-libquadmath --disable-libssp --disable-libvtv --disable-libstdcxx --enable-languages=c,c++"
+  ../configure --target=$target --prefix=$destination_dir --with-glibc-version=2.23 --with-sysroot=$destination_dir --with-newlib --without-headers --with-local-prefix=$destination_dir --with-native-system-header-dir=$destination_dir/include --disable-nls --disable-shared --disable-multilib --disable-decimal-float --disable-threads --disable-libatomic --disable-libgomp --disable-libmpx --disable-libquadmath --disable-libssp --disable-libvtv --disable-libstdcxx --enable-languages=c,c++
+  make
+  make install
 elif [ "x$stage" == "xstage2" ]; then
-  echo ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-  ../configure --target=$target --disable-multilib --prefix=$destination_dir --disable-nls --disable-threads --disable-shared --enable-__cxa_atexit --enable-clocale=gnu --enable-languages=c --with-sysroot=$destination_dir
-  make all-target-libgcc
-  make install-target-libgcc
-elif [ "x$stage" == "xstage3" ]; then
-  echo ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c --enable-shared --disable-libssp --disable-libquadmath --disable-libgomp --disable-libatomic --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir
-  ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c --enable-shared --disable-libssp --disable-libquadmath --disable-libgomp --disable-libatomic --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir
+  CC=$prefix-gcc
+  CXX=$prefix-g++
+  AS=$prefix-as
+  LD=$prefix-ld
+  AR=$prefix-ar
+  RANLIB=$prefix-ranlib
+  export CFLAGS="-I$destination_dir/include --sysroot=$destination_dir -isysroot=$destination_dir $cflags"
 
-  make all-gcc
-  make install-gcc
-
-  make all-target-libgcc
-  make install-target-libgcc
+  echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0"
+  ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0
 
   make
-  make prefix=$destination_dir install
-elif [ "x$stage" == "xstage4" ]; then
-  echo ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c,c++ --enable-shared --enable-threads=posix --disable-checking --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir libc_cv_forced_unwind=yes
-  ../configure --prefix=$destination_dir --target=$target --disable-multilib --enable-languages=c,c++ --enable-shared --enable-threads=posix --disable-checking --enable-__cxa_atexit --enable-clocale=gnu --with-sysroot=$destination_dir libc_cv_forced_unwind=yes
+  make DESTDIR=$destination_dir install
+elif [ "x$stage" == "xstage3" ]; then
+  CC=$prefix-gcc
+  CXX=$prefix-g++
+  AR=$prefix-ar
+  RANLIB=$prefix-ranlib
 
-  make -j4
-  make prefix=$destination_dir install
+  echo "../configure --target=$target --prefix=$destination_dir --with-local-prefix=$destination_dir --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared --with-sysroot=$destination_dir"
+  ../configure --target=$target --prefix=$destination_dir --with-local-prefix=$destination_dir --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared --with-sysroot=$destination_dir
+  make
+  make install
+elif [ "x$stage" == "xsystem" ]; then
+  CC=$prefix-gcc
+  CXX=$prefix-g++
+  AR=$prefix-ar
+  RANLIB=$prefix-ranlib
+  CFLAGS="$cflags"
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  echo "../gmp/configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
+  ../gmp/configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared
+  make
+  make DESTDIR=$destination_dir install
+
+  echo "../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
+  ../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared
+  make
+  make DESTDIR=$destination_dir install
 fi
 
 cd ..

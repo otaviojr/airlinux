@@ -9,7 +9,7 @@ platform=''
 destination=''
 
 try:
-    myopts, args = getopt.getopt(sys.argv[1:],"p:a:d:")
+    myopts, args = getopt.getopt(sys.argv[1:],"p:a:d:s:c:")
 except getopt.GetoptError as e:
     print (str(e))
     print("Usage: %s -p platform [specifc commands]" % sys.argv[0])
@@ -29,5 +29,5 @@ else:
         os.mkdir(os.path.join(destination,"dist"))
     if not os.path.isdir(os.path.join(destination,"packages")):
         os.mkdir(os.path.join(destination,"packages"))
-        
+
 platforms.process_platform(platform,sys.argv[1:])

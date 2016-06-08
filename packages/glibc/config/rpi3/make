@@ -1,0 +1,7 @@
+#!/bin/bash
+
+#Make dirs
+mkdir $destination_dir/etc/ld.so.conf.d
+
+#Copy conif files
+cp -Rf $current_dir/config/$arch/etc $destination_dir
