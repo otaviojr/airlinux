@@ -45,6 +45,17 @@ function get_cflags_for_arch() {
 	echo "$flags"
 }
 
+function get_ldflags_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    flags="-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=softfp"
+  elif [ "x$arch" == "xrpi3" ]; then
+    #flags="-O2 -U_FORTIFY_SOURCE -fno-stack-protector -ftree-vectorize"
+    flags="-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=softfp"
+  fi
+	echo "$flags"
+}
+
 ## file_has_content function
 ##
 ## arguments:

@@ -98,11 +98,6 @@ elif [ "x$stage" == "xsystem" ]; then
   CFLAGS="$cflags"
   export PATH=$PATH:$cross_tools/dist/bin
 
-  echo "../gmp/configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
-  ../gmp/configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared
-  make
-  make DESTDIR=$destination_dir install
-
   echo "../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
   ../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared
   make

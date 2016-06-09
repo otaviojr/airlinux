@@ -1,0 +1,14 @@
+--- ./Makefile-libbz2_so	2016-06-09 17:03:17.859901910 -0300
++++ ./Makefile-libbz2_so	2016-06-09 17:04:42.072384405 -0300
+@@ -22,9 +22,9 @@
+
+
+ SHELL=/bin/sh
+-CC=gcc
++CC=$(BUILD_CC)
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-fpic -fPIC -Wall -Winline -O2 -g $(BIGFILES)
++CFLAGS=-fpic -fPIC -Wall -Winline -O2 -g $(BIGFILES) $(BUILD_CFLAGS)
+
+ OBJS= blocksort.o  \
+       huffman.o    \

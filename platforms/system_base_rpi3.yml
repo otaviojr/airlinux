@@ -5,7 +5,6 @@ packages: [
 { package: "pikernel", script: "make", parameters: ["full"] },
 { package: "glibc", script: "make" , parameters: ["system"]},
 { package: "glibc", script: "make" , parameters: ["configs"]},
-{ package: "gcc", script: "make" , parameters: ["system"]},
 { package: "module_init_tools", script: "make" , parameters: ["system"]},
 { package: "procps", script: "make" , parameters: ["system"]},
 { package: "zlib", script: "make" , parameters: ["system"]},
@@ -13,4 +12,7 @@ packages: [
 { package: "libpcre", script: "make" , parameters: ["system"]},
 { package: "glib", script: "make" , parameters: ["system"]},
 { package: "pkgconfig", script: "make" , parameters: ["system"]},
+{ package: "libpng", script: "make" , parameters: ["system"]},
+{ package: "bzip2", script: "make" , parameters: ["system"]},
+{ package: "freetype", script: "make" , parameters: ["system"]},
 ]

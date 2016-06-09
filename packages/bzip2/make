@@ -1,0 +1,58 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling zlib2 for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/bzip2-1.0.6"
+
+cd $download_dir
+if [ ! -d "bzip2-1.0.6" ]; then
+  wget http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+  tar -xf bzip2-1.0.6.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export BUILD_CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib"
+export BUILD_LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
+export BUILD_CC=$prefix-gcc
+export BUILD_AR=$prefix-ar
+export BUILD_RANLIB=$prefix-ranlib
+export PATH=$PATH:$cross_tools/dist/bin
+
+patch -p1 -N -i $current_dir/patches/Makefile.patch
+patch -p1 -N -i $current_dir/patches/Makefile_libbz2_so.patch
+
+if [ "x$stage" == "xsystem" ]; then
+  make clean
+  make
+  make DESTDIR=$destination_dir install
+  make clean
+  make -f Makefile-libbz2_so
+  make -f Makefile-libbz2_so DESTDIR=$destination_dir install
+   cp libbz2.so.1.0* $destination_dir/lib
+   ln -s $destination_dir/lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
+fi
+
+touch "done-$stage.lock"

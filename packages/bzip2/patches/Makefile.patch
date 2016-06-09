@@ -1,0 +1,33 @@
+--- ./Makefile	2016-06-09 14:13:08.211801500 -0300
++++ ./Makefile	2016-06-09 14:17:39.155345637 -0300
+@@ -15,16 +15,16 @@
+ SHELL=/bin/sh
+
+ # To assist in cross-compiling
+-CC=gcc
+-AR=ar
+-RANLIB=ranlib
++CC=$(BUILD_CC)
++AR=$(BUILD_AR)
++RANLIB=$(BUILD_RANLIB)
+ LDFLAGS=
+
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-Wall -Winline -O2 -g $(BIGFILES)
++CFLAGS=-Wall -Winline -O2 -g $(BIGFILES) $(BUILD_CFLAGS)
+
+ # Where you want it installed when you do 'make install'
+-PREFIX=/usr/local
++PREFIX=$(DESTDIR)
+
+
+ OBJS= blocksort.o  \
+@@ -35,7 +35,7 @@
+       decompress.o \
+       bzlib.o
+
+-all: libbz2.a bzip2 bzip2recover test
++all: libbz2.a bzip2 bzip2recover
+
+ bzip2: libbz2.a bzip2.o
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o bzip2 bzip2.o -L. -lbz2
