@@ -1,0 +1,79 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling glib for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/glib-2.49.1"
+
+cd $download_dir
+if [ ! -d "glib-2.49.1" ]; then
+  wget http://ftp.gnome.org/pub/gnome/sources/glib/2.49/glib-2.49.1.tar.xz
+  tar -xf glib-2.49.1.tar.xz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/glib_makefile.patch
+aclocal
+automake
+
+if [ -d "b" ]; then
+  rm -rf "b"
+fi
+mkdir "b"
+cd "$package_dir/b"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo apt-get install gtk-doc-tools
+  sudo apt-get install libglib2.0-dev
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$destination_dir/bin
+
+  export ARCH=$macro_target
+  export CROSS_COMPILE=$prefix-
+  export LDFLAGS="-L$destination_dir/lib"
+  export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+  export LIBFFI_CFLAGS="-I$destination_dir/include"
+  export LIBFFI_LIBS="-L$destination_dir/lib -lffi"
+
+  export BUILD_CC=gcc
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export RANLIB=$prefix-ranlib
+
+  echo "glib_cv_stack_grows=no glib_cv_uscore=no ac_cv_func_posix_getpwuid_r=yes ac_cv_func_posix_getgrgid_r=yes ../configure --prefix=/ --host=$target --target=$target --disable-libelf"
+  glib_cv_stack_grows=no glib_cv_uscore=no ac_cv_func_posix_getpwuid_r=yes ac_cv_func_posix_getgrgid_r=yes ../configure --prefix=/ --host=$target --target=$target --disable-libelf
+  make LIBTOOL=$prefix-libtool
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

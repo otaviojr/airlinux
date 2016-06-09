@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling procps for $arch at $destination - stage: $stage"
+echo "Cross-Compiling libpcre for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/procps-3.2.8"
+package_dir="$download_dir/pcre-8.38"
 
 cd $download_dir
-if [ ! -d "procps-3.2.8" ]; then
-  wget http://procps.sourceforge.net/procps-3.2.8.tar.gz
-  tar -xf procps-3.2.8.tar.gz
+if [ ! -d "pcre-8.38" ]; then
+  wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.38.tar.bz2
+  tar -xf pcre-8.38.tar.bz2
 fi
 
 cd $package_dir
@@ -34,19 +34,22 @@ prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
+export CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib"
+export LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
 export CC=$prefix-gcc
 export AR=$prefix-ar
 export AS=$prefix-as
 export LD=$prefix-ld
 export RANLIB=$prefix-ranlib
-
-patch -p1 -N -i $current_dir/patches/Makefile.patch
-patch -p1 -N -i $current_dir/patches/module.mk.patch
+#export LIBTOOL=$prefix-libtool
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
 
 if [ "x$stage" == "xsystem" ]; then
-  export PATH=$PATH:$cross_tools/dist/bin
-  export CUSTOM_CFLAGS="$cflags -I$destination_dir/include/ncurses -ltinfo --sysroot=$destination_dir"
-  make clean
+  make distclean
+
+  echo ./configure --prefix= --host=$target
+  ./configure --prefix= --host=$target --with-sysroot=$destination_dir
   make
   make DESTDIR=$destination_dir install
 fi

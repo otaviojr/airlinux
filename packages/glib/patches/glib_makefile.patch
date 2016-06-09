@@ -1,0 +1,11 @@
+--- ./glib/Makefile.am	2016-06-09 01:16:49.831736339 -0300
++++ ./glib/Makefile.am	2016-06-09 01:17:26.723934558 -0300
+@@ -11,7 +11,7 @@
+ #
+ DISTCLEANFILES += glibconfig-stamp glibconfig.h glibconfig.h.win32
+ BUILT_SOURCES += glibconfig-stamp
+-configexecincludedir = $(libdir)/glib-2.0/include
++configexecincludedir = $(includedir)
+ nodist_configexecinclude_HEADERS = glibconfig.h
+ glibconfig-stamp: ../config.status
+ 	$(AM_V_GEN) cd $(top_builddir) && \

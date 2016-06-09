@@ -1,4 +1,5 @@
 packages: [
+{ package: "dependencies", script: "make", parameters: ["system"] },
 { package: "system_directories", script: "make", parameters: ["all"] },
 { package: "ncurses", script: "make" , parameters: ["all"]},
 { package: "pikernel", script: "make", parameters: ["full"] },
@@ -7,4 +8,9 @@ packages: [
 { package: "gcc", script: "make" , parameters: ["system"]},
 { package: "module_init_tools", script: "make" , parameters: ["system"]},
 { package: "procps", script: "make" , parameters: ["system"]},
+{ package: "zlib", script: "make" , parameters: ["system"]},
+{ package: "libffi", script: "make" , parameters: ["system"]},
+{ package: "libpcre", script: "make" , parameters: ["system"]},
+{ package: "glib", script: "make" , parameters: ["system"]},
+{ package: "pkgconfig", script: "make" , parameters: ["system"]},
 ]

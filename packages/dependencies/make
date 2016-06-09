@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#Include our common functions
+. ./packages/common/functions
+
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo apt-get install autoconf
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi

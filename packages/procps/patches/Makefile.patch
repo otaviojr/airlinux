@@ -1,0 +1,56 @@
+--- ./Makefile	2016-06-08 21:26:20.361819526 -0300
++++ ./Makefile	2016-06-08 21:41:38.116230974 -0300
+@@ -27,15 +27,15 @@
+ ldconfig := ldconfig
+ ln_f     := ln -f
+ ln_sf    := ln -sf
+-install  := install -D --owner 0 --group 0
++install  := install -D
+
+ # Lame x86-64 /lib64 and /usr/lib64 abomination:
+ lib64    := lib$(shell [ -d /lib64 ] && echo 64)
+
+-usr/bin                  := $(DESTDIR)/usr/bin/
++usr/bin                  := $(DESTDIR)/bin/
+ bin                      := $(DESTDIR)/bin/
+ sbin                     := $(DESTDIR)/sbin/
+-usr/proc/bin             := $(DESTDIR)/usr/bin/
++usr/proc/bin             := $(DESTDIR)/bin/
+ man1                     := $(DESTDIR)/usr/share/man/man1/
+ man5                     := $(DESTDIR)/usr/share/man/man5/
+ man8                     := $(DESTDIR)/usr/share/man/man8/
+@@ -82,7 +82,7 @@
+
+ # Preprocessor flags.
+ PKG_CPPFLAGS := -D_GNU_SOURCE -I proc
+-CPPFLAGS     := -I/usr/include/ncurses
++CPPFLAGS     := -I/include/ncurses
+ ALL_CPPFLAGS := $(PKG_CPPFLAGS) $(CPPFLAGS)
+
+ # Left out -Wconversion due to noise in glibc headers.
+@@ -99,7 +99,7 @@
+ PKG_CFLAGS   := -fno-common -ffast-math \
+   -W -Wall -Wshadow -Wcast-align -Wredundant-decls \
+   -Wbad-function-cast -Wcast-qual -Wwrite-strings -Waggregate-return \
+-  -Wstrict-prototypes -Wmissing-prototypes
++  -Wstrict-prototypes -Wmissing-prototypes $(CUSTOM_CFLAGS)
+ # Note that some stuff below is conditional on CFLAGS containing
+ # an option that starts with "-g". (-g, -g2, -g3, -ggdb, etc.)
+ CFLAGS       := -O2 -s
+@@ -107,7 +107,7 @@
+
+ PKG_LDFLAGS  := -Wl,-warn-common
+ LDFLAGS      :=
+-ALL_LDFLAGS  := $(PKG_LDFLAGS) $(LDFLAGS)
++ALL_LDFLAGS  := $(PKG_LDFLAGS) $(LDFLAGS) $(CUSTOM_LDFLAGS)
+
+ ############ Add some extra flags if gcc allows
+
+@@ -174,7 +174,7 @@
+ # want this rule first, use := on ALL, and ALL not filled in yet
+ all: do_all
+
+--include */module.mk
++-include proc/module.mk ps/module.mk
+
+ do_all:    $(ALL)
