@@ -1,0 +1,48 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libcap for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/libcap-2.25"
+
+cd $download_dir
+if [ ! -d "libcap-2.25" ]; then
+  wget https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.25.tar.xz
+  tar -xf libcap-2.25.tar.xz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export PATH=$PATH:$cross_tools/dist/bin
+
+patch -p1 -N -i $current_dir/patches/Make.Rule.patch
+patch -p1 -N -i $current_dir/patches/Makefile_libcap.patch
+
+if [ "x$stage" == "xsystem" ]; then
+  make distclean
+  make CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib" LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib" prefix=/ lib=/lib CC=$prefix-gcc LD=$prefix-ld RANLIB=$prefix-ranlib SYSTEM_HEADERS=$destination_dir/include
+  make CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib" LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib" RAISE_SETFCAP=no CC=$prefix-gcc LD=$prefix-ld RANLIB=$prefix-ranlib SYSTEM_HEADERS=$destination_dir/include prefix=/ lib=/lib DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

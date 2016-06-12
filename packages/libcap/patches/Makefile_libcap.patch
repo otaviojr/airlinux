@@ -1,0 +1,19 @@
+--- ./libcap/Makefile	2016-06-11 13:48:10.712183253 -0300
++++ ./libcap/Makefile	2016-06-11 13:48:21.154564166 -0300
+@@ -35,7 +35,7 @@
+ 		$< >$@
+
+ _makenames: _makenames.c cap_names.list.h
+-	$(BUILD_CC) $(BUILD_CFLAGS) $< -o $@
++	$(HOST_CC) $(HOST_CFLAGS) $< -o $@
+
+ cap_names.h: _makenames
+ 	./_makenames > cap_names.h
+@@ -52,7 +52,7 @@
+ 	$(RANLIB) $@
+
+ $(MINLIBNAME): $(OBJS)
+-	$(LD) $(CFLAGS) $(LDFLAGS) -Wl,-soname,$(MAJLIBNAME) -o $@ $^
++	$(CC) $(LDFLAGS) -shared -Wl,-soname,$(MAJLIBNAME) -o $@ $^
+ 	ln -sf $(MINLIBNAME) $(MAJLIBNAME)
+ 	ln -sf $(MAJLIBNAME) $(LIBNAME)

@@ -15,4 +15,10 @@ packages: [
 { package: "libpng", script: "make" , parameters: ["system"]},
 { package: "bzip2", script: "make" , parameters: ["system"]},
 { package: "freetype", script: "make" , parameters: ["system"]},
+{ package: "dash", script: "make" , parameters: ["system"]},
+{ package: "bash", script: "make" , parameters: ["system"]},
+{ package: "libpam", script: "make" , parameters: ["system"]},
+{ package: "shadow", script: "make" , parameters: ["system"]},
+{ package: "libcap", script: "make" , parameters: ["system"]},
+{ package: "coreutils", script: "make" , parameters: ["system"]},
 ]
