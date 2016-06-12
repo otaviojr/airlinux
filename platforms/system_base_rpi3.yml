@@ -21,4 +21,10 @@ packages: [
 { package: "shadow", script: "make" , parameters: ["system"]},
 { package: "libcap", script: "make" , parameters: ["system"]},
 { package: "coreutils", script: "make" , parameters: ["system"]},
+{ package: "findutils", script: "make" , parameters: ["system"]},
+{ package: "sed", script: "make" , parameters: ["system"]},
+{ package: "grep", script: "make" , parameters: ["system"]},
+{ package: "expat", script: "make" , parameters: ["system"]},
+{ package: "dbus", script: "make" , parameters: ["system"]},
+{ package: "util-linux", script: "make" , parameters: ["system"]},
 ]

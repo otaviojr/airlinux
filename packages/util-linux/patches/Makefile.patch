@@ -1,0 +1,33 @@
+--- ./Makefile	2016-06-12 16:59:23.543688633 -0300
++++ ./Makefile	2016-06-12 17:00:49.400008468 -0300
+@@ -365,7 +365,7 @@
+ am__append_127 = term-utils/mesg.1
+ am__append_128 = wall
+ am__append_129 = term-utils/wall.1
+-am__append_130 = install-exec-hook-wall
++#am__append_130 = install-exec-hook-wall
+ #am__append_131 = write
+ #am__append_132 = term-utils/write.1
+ #am__append_133 = install-exec-hook-write
+@@ -3650,7 +3650,7 @@
+ 	misc-utils/uuidd.socket
+ INSTALL_EXEC_HOOKS = $(am__append_13) $(am__append_27) \
+ 	$(am__append_42) $(am__append_53) $(am__append_68) \
+-	$(am__append_130) $(am__append_133) $(am__append_136) \
++	$(am__append_133) $(am__append_136) \
+ 	$(am__append_179) $(am__append_227) $(am__append_244)
+ UNINSTALL_HOOKS = $(am__append_14) $(am__append_28) $(am__append_43) \
+ 	$(am__append_54) $(am__append_69) $(am__append_228)
+@@ -11803,9 +11803,9 @@
+
+ uninstall-hook-libfdisk:
+ 	rm -f $(DESTDIR)$(libdir)/libfdisk.so*
+-install-exec-hook-wall::
+-	chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
+-	chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
++#install-exec-hook-wall::
++#	chgrp tty $(DESTDIR)$(usrbin_execdir)/wall
++#	chmod g+s $(DESTDIR)$(usrbin_execdir)/wall
+
+ #install-exec-hook-write::
+ #	chgrp tty $(DESTDIR)$(usrbin_execdir)/write

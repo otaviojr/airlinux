@@ -1,0 +1,57 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling util-linux for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/util-linux-2.28"
+
+cd $download_dir
+if [ ! -d "util-linux-2.28" ]; then
+  wget https://www.kernel.org/pub/linux/utils/util-linux/v2.28/util-linux-2.28.tar.xz
+  tar -xf util-linux-2.28.tar.xz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ncurses"
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  make distclean
+
+  echo ./configure --prefix= --host=$target --enable-makeinstall-chown=no
+  ./configure --prefix= --host=$target --enable-makeinstall-chown=no
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

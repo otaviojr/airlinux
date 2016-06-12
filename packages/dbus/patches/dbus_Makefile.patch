@@ -1,0 +1,10 @@
+--- ./dbus/Makefile.am	2016-06-12 16:42:53.335233029 -0300
++++ ./dbus/Makefile.am	2016-06-12 16:43:17.775607427 -0300
+@@ -29,7 +29,7 @@
+ AM_LDFLAGS = @R_DYNAMIC_LDFLAG@
+
+ dbusincludedir=$(includedir)/dbus-1.0/dbus
+-dbusarchincludedir=$(libdir)/dbus-1.0/include/dbus
++dbusarchincludedir=$(includedir)/dbus-1.0/dbus
+
+ lib_LTLIBRARIES=libdbus-1.la
