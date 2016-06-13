@@ -6,4 +6,5 @@ packages: [
 { package: "glibc", script: "make", parameters: ["stage1"] },
 { package: "gcc", script: "make", parameters: ["stage2"] },
 { package: "gcc", script: "make", parameters: ["stage3"] },
+{ package: "binutils", script: "make", parameters: ["stage2"] },
 ]

@@ -15,6 +15,7 @@ cross_tools="$4"
 
 cd $download_dir
 if [ ! -d "pikernel" ]; then
+  #git clone -b rpi-4.4.y https://github.com/raspberrypi/linux.git pikernel
   git clone -b rpi-4.7.y https://github.com/raspberrypi/linux.git pikernel
 fi
 

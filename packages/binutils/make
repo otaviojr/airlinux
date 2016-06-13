@@ -33,9 +33,23 @@ cd "$download_dir/binutils-2.26/build"
 
 target=$(get_target_for_arch $arch)
 
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install bison
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
 if [ "x$stage" == "xstage1" ]; then
   echo "../configure --prefix=$destination_dir --target=$target --enable-shared --with-sysroot=$destination_dir"
   ../configure --prefix=$destination_dir --target=$target --enable-shared --with-sysroot=$destination_dir
+  make
+  make install
+elif [ "x$stage" == "xstage2" ]; then
+  echo "../configure --prefix=$destination_dir --target=$target --enable-gold --enable-lto --enable-plugins --enable-shared --with-sysroot=$destination_dir"
+  ../configure --prefix=$destination_dir --target=$target --enable-shared --enable-gold --enable-lto --enable-plugins --with-sysroot=$destination_dir
   make
   make install
 fi

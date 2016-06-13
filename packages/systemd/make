@@ -1,0 +1,77 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling systemd for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/systemd-230"
+
+cd $download_dir
+if [ ! -d "systemd-230" ]; then
+  wget https://github.com/systemd/systemd/archive/v230.tar.gz
+  tar -xf v230.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ ! -f "configure" ]; then
+  ./autogen.sh
+fi
+
+sudo apt-get install gperf
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -DHAVE_LINUX_BTRFS_H"
+export LDFLAGS="$cflags -L$destination_dir/lib"
+
+export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
+export BLKID_LIBS="-L$destination_dir/lib"
+export DBUS_CFLAGS="-I$destination_dir/include -I$destination_dir/include/dbus-1.0"
+export DBUS_LIBS="-L$destination_dir/lib"
+export MOUNT_CFLAGS="-I$destination_dir/include -I$destination_dir/include/libmount"
+export MOUNT_LIBS="-L$destination_dir/lib"
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+  export LIBTOOL=$prefix-libtool
+  export CROSS_COMPILE=$prefix-
+
+  echo ../configure --prefix= --host=$target --enable-kdbus --enable-compat-libs --with-sysroot=$destination_dir
+  ../configure --prefix= --host=$target --enable-kdbus --enable-compat-libs --with-sysroot=$destination_dir
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

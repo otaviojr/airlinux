@@ -6,7 +6,7 @@
 distro=$(get_distro_name)
 
 if [ "x$distro" == "xubuntu" ]; then
-  sudo apt-get install autoconf
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install autoconf
 else
   echo "Non debian platform not supported"
   exit 1
