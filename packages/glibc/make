@@ -69,6 +69,7 @@ elif [ "x$stage" == "xsystem" ]; then
   echo ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
   ../configure --prefix=/ --host=$target --with-headers=$destination_dir/include --enable-kernel=2.6.32 libc_cv_forced_unwind=yes libc_cv_c_cleanup=yes libc_cv_ctors_header=yes
   make
+  make DESTDIR=$destination_dir install-headers
   make DESTDIR=$destination_dir install
 elif [ "x$stage" == "xconfigs" ]; then
   export current_dir

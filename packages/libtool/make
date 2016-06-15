@@ -26,8 +26,8 @@ fi
 
 target=$(get_target_for_arch $arch)
 
-echo "./configure --prefix=/ --program-prefix=$prefix --target=$target --with-sysroot=$destination_dir"
-./configure --prefix=/ --program-prefix=$prefix --target=$target --with-sysroot=$destination_dir
+echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
+./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
 make
 make DESTDIR=$destination_dir install
 

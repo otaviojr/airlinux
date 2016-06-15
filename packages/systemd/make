@@ -47,14 +47,15 @@ cflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -DHAVE_LINUX_BTRFS_H"
-export LDFLAGS="$cflags -L$destination_dir/lib"
+export LDFLAGS="$cflags -L$destination_dir/lib --sysroot=$destination_dir"
 
 export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
-export BLKID_LIBS="-L$destination_dir/lib"
+export BLKID_LIBS="-L$destination_dir/lib -lblkid"
 export DBUS_CFLAGS="-I$destination_dir/include -I$destination_dir/include/dbus-1.0"
-export DBUS_LIBS="-L$destination_dir/lib"
+export DBUS_LIBS="-L$destination_dir/lib -ldbus-1"
 export MOUNT_CFLAGS="-I$destination_dir/include -I$destination_dir/include/libmount"
-export MOUNT_LIBS="-L$destination_dir/lib"
+export MOUNT_LIBS="-L$destination_dir/lib -lmount"
+export LT_SYS_LIBRARY_PATH="$destination_dir:$destination_dir/lib"
 
 if [ "x$stage" == "xsystem" ]; then
   export PATH=$PATH:$cross_tools/dist/bin
@@ -63,13 +64,15 @@ if [ "x$stage" == "xsystem" ]; then
   export AS=$prefix-as
   export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
-  export LIBTOOL=$prefix-libtool
-  export CROSS_COMPILE=$prefix-
+  export STRIP=$prefix-strip
+  export SYSROOT=$destination_dir
 
-  echo ../configure --prefix= --host=$target --enable-kdbus --enable-compat-libs --with-sysroot=$destination_dir
-  ../configure --prefix= --host=$target --enable-kdbus --enable-compat-libs --with-sysroot=$destination_dir
+  echo cc_cv_CFLAGS__flto=no ../configure --prefix= --host=$target --enable-kdbus --with-sysroot=$destination_dir
+  cc_cv_CFLAGS__flto=no ../configure --prefix= --host=$target --enable-kdbus --with-sysroot=$destination_dir
 
-  make
+  patch -p1 -N -i $current_dir/patches/libtool.patch
+
+  make DESTDIR=$destination_dir
   make DESTDIR=$destination_dir install
 fi
 

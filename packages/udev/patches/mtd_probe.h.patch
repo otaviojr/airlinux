@@ -1,0 +1,10 @@
+--- ./src/mtd_probe/mtd_probe.h	2016-06-14 20:50:31.830159731 -0300
++++ ./src/mtd_probe/mtd_probe.h	2016-06-14 20:50:51.661483027 -0300
+@@ -18,6 +18,7 @@
+  */
+
+ #include <mtd/mtd-user.h>
++#include <stdint.h>
+
+ /* Full oob structure as written on the flash */
+ struct sm_oob {

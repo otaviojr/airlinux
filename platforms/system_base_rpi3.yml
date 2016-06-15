@@ -1,6 +1,7 @@
 packages: [
 { package: "dependencies", script: "make", parameters: ["system"] },
 { package: "system_directories", script: "make", parameters: ["all"] },
+{ package: "libtool", script: "make" , parameters: ["all"]},
 { package: "ncurses", script: "make" , parameters: ["all"]},
 { package: "pikernel", script: "make", parameters: ["full"] },
 { package: "glibc", script: "make" , parameters: ["system"]},
@@ -28,5 +29,8 @@ packages: [
 { package: "dbus", script: "make" , parameters: ["system"]},
 { package: "util-linux", script: "make" , parameters: ["system"]},
 { package: "gperf", script: "make" , parameters: ["system"]},
+{ package: "libiscsi", script: "make" , parameters: ["system"]},
+{ package: "kmod", script: "make" , parameters: ["system"]},
+{ package: "udev", script: "make" , parameters: ["system"]},
 { package: "systemd", script: "make" , parameters: ["system"]},
 ]
