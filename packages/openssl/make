@@ -1,0 +1,65 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling openssl for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/openssl-1.0.2h"
+
+cd $download_dir
+if [ ! -d "openssl-1.0.2h" ]; then
+  wget https://www.openssl.org/source/openssl-1.0.2h.tar.gz
+  tar -xf openssl-1.0.2h.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export cflags="$cflags --sysroot=$destination_dir -I$destination_dir/include -DZLIB -DOPENSSL_THREADS -D_REENTRANT"
+export ldflags="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
+#export CC=$prefix-gcc
+#export AR=$prefix-ar
+#export AS=$prefix-as
+#export LD=$prefix-ld
+#export RANLIB=$prefix-ranlib
+export PATH=$PATH:$cross_tools/dist/bin
+export CROSS=$prefix-
+export CROSS_COMPILE=$prefix-
+export CC=gcc
+
+if [ "x$stage" == "xsystem" ]; then
+  make dclean
+
+  ssl_platform=""
+  if [ "x$macro_target" == "xarm" ]; then
+    ssl_platform="linux-generic32"
+  fi
+
+  echo "./Configure $ssl_platform shared threads -D_REENTRANT --prefix=/ zlib-dynamic --openssldir=/etc/ssl --libdir=lib -I$destination_dir/include $cflags"
+  ./Configure $ssl_platform shared threads -D_REENTRANT --prefix=/ zlib-dynamic --openssldir=/etc/ssl --libdir=lib -I$destination_dir/include $cflags
+  make depend
+  make
+  make INSTALL_PREFIX=$destination_dir install
+fi
+
+touch "done-$stage.lock"

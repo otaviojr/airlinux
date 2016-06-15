@@ -15,6 +15,9 @@ packages: [
 { package: "pkgconfig", script: "make" , parameters: ["system"]},
 { package: "libpng", script: "make" , parameters: ["system"]},
 { package: "bzip2", script: "make" , parameters: ["system"]},
+{ package: "tar", script: "make" , parameters: ["system"]},
+{ package: "gzip", script: "make" , parameters: ["system"]},
+{ package: "xz", script: "make" , parameters: ["system"]},
 { package: "freetype", script: "make" , parameters: ["system"]},
 { package: "dash", script: "make" , parameters: ["system"]},
 { package: "bash", script: "make" , parameters: ["system"]},
@@ -32,5 +35,7 @@ packages: [
 { package: "libiscsi", script: "make" , parameters: ["system"]},
 { package: "kmod", script: "make" , parameters: ["system"]},
 { package: "udev", script: "make" , parameters: ["system"]},
+{ package: "openssl", script: "make" , parameters: ["system"]},
+{ package: "curl", script: "make" , parameters: ["system"]},
 { package: "systemd", script: "make" , parameters: ["system"]},
 ]

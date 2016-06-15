@@ -52,7 +52,14 @@ elif [ "x$stage" == "xfull" ]; then
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- modules_install"
-  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$destination_dir/boot modules_install
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$destination_dir/lib modules_install
+
+  mkdir -p $destination_dir/boot/overlays/
+
+  cp arch/arm/boot/dts/*.dtb $destination_dir/boot/
+  cp arch/arm/boot/dts/overlays/*.dtb* $destination_dir/boot/overlays/
+  cp arch/arm/boot/dts/overlays/README $destination_dir/boot/overlays/
+  sudo scripts/mkknlimg arch/arm/boot/zImage $destination_dir/boot/$KERNEL.img
 fi
 
 touch "done-$stage.lock"
