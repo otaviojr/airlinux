@@ -38,4 +38,5 @@ packages: [
 { package: "openssl", script: "make" , parameters: ["system"]},
 { package: "curl", script: "make" , parameters: ["system"]},
 { package: "systemd", script: "make" , parameters: ["system"]},
+{ package: "vim", script: "make" , parameters: ["system"]},
 ]

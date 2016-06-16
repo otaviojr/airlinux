@@ -1,0 +1,95 @@
+--- ./auto/configure	2016-06-16 01:01:48.107185616 -0300
++++ ./auto/configure	2016-06-16 01:20:49.662557781 -0300
+@@ -10392,31 +10392,7 @@
+ else
+   ac_check_lib_save_LIBS=$LIBS
+ LIBS="-l${libname}  $LIBS"
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-/* Override any GCC internal prototype to avoid an error.
+-   Use char because int might match the return type of a GCC
+-   builtin and then its argument prototype would still apply.  */
+-#ifdef __cplusplus
+-extern "C"
+-#endif
+-char tgetent ();
+-int
+-main ()
+-{
+-return tgetent ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+   eval "$as_ac_Lib=yes"
+-else
+-  eval "$as_ac_Lib=no"
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+ LIBS=$ac_check_lib_save_LIBS
+ fi
+ eval ac_res=\$$as_ac_Lib
+@@ -10436,30 +10412,12 @@
+                         if test "$cross_compiling" = yes; then :
+   res="FAIL"
+ else
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-#ifdef HAVE_TERMCAP_H
+-# include <termcap.h>
+-#endif
+-#if STDC_HEADERS
+-# include <stdlib.h>
+-# include <stddef.h>
+-#endif
+-main() {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(0); }
+-_ACEOF
+-if ac_fn_c_try_run "$LINENO"; then :
+   res="OK"
+-else
+-  res="FAIL"
+-fi
+-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+-  conftest.$ac_objext conftest.beam conftest.$ac_ext
+ fi
+
+-      if test "$res" = "OK"; then
++      #if test "$res" = "OK"; then
+ 	break
+-      fi
++      #fi
+       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $libname library is not usable" >&5
+ $as_echo "$libname library is not usable" >&6; }
+       LIBS="$olibs"
+@@ -10474,27 +10432,8 @@
+ if test "x$olibs" = "x$LIBS"; then
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for tgetent()" >&5
+ $as_echo_n "checking for tgetent()... " >&6; }
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-int
+-main ()
+-{
+-char s[10000]; int res = tgetent(s, "thisterminaldoesnotexist");
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-else
+-  as_fn_error "NOT FOUND!
+-      You need to install a terminal library; for example ncurses.
+-      Or specify the name of the library with --with-tlib." "$LINENO" 5
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+ fi
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether we talk terminfo" >&5

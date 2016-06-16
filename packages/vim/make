@@ -1,0 +1,74 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling vim for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/vim74"
+
+cd $download_dir
+if [ ! -d "vim74" ]; then
+  wget ftp://ftp.vim.org/pub/vim/unix/vim-7.4.tar.bz2
+  tar -xf vim-7.4.tar.bz2
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+cd src
+patch -p1 -N -i $current_dir/patches/configure.patch
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ncurses -L$destination_dir/lib"
+export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ncurses -L$destination_dir/lib"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -lncurses -ltinfo -L$destination_dir/lib"
+export LD_LIBRARY_PATH="-L$destination_dir/lib"
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  export STRIP=$prefix-strip
+
+  export vim_cv_terminfo="yes"
+  export vim_cv_tty_group="world"
+  export vim_cv_tty_mode="0620"
+  export vim_cv_getcwd_broken="no"
+  export vim_cv_memmove_handles_overlap="yes"
+  export vim_cv_stat_ignores_slash="yes"
+  export vim_cv_tgetent="zero"
+  export ac_cv_lib_ncurses___tgetent="yes"
+  export vim_cv_toupper_broken="no"
+  export vim_cv_tgent="no"
+
+  make distclean
+
+  echo ./configure --prefix= --host=$target --target=$target --enable-gui=no --disable-gtktest --disable-xim --disable-gpm --without-x --disable-netbeans
+  ./configure --prefix= --host=$target --target=$target --enable-gui=no --disable-gtktest --disable-xim --disable-gpm --without-x --disable-netbeans
+
+  patch -p1 -N -i $current_dir/patches/Makefile.patch
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

@@ -1,0 +1,10 @@
+--- ./Makefile	2016-06-16 01:33:52.320931273 -0300
++++ ./Makefile	2016-06-16 01:34:16.548923299 -0300
+@@ -1342,7 +1342,7 @@
+
+ # Exclude $CFLAGS for osdef.sh, for Mac 10.4 some flags don't work together
+ # with "-E".
+-OSDEF_CFLAGS = $(PRE_DEFS) $(POST_DEFS)
++OSDEF_CFLAGS = $(PRE_DEFS) $(POST_DEFS) $(CFLAGS)
+
+ LINT_CFLAGS = -DLINT -I. $(PRE_DEFS) $(POST_DEFS) $(RUBY_CFLAGS) $(LUA_CFLAGS) $(PERL_CFLAGS) $(PYTHON_CFLAGS) $(PYTHON3_CFLAGS) -Dinline= -D__extension__= -Dalloca=alloca
