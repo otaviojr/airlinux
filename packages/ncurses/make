@@ -53,6 +53,7 @@ if [ "x$stage" == "xall" ]; then
   export AR=$prefix-ar
   export AS=$prefix-as
   export RANLIB=$prefix-ranlib
+
   echo ../configure --prefix= --host=$target --with-shared --with-termlib --enable-term-drive
   ../configure --prefix= --host=$target --with-shared --with-termlib --enable-term-drive
   make
