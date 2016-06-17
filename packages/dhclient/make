@@ -1,0 +1,65 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling dhclient for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/dhcp-4.3.4"
+
+cd $download_dir
+if [ ! -d "dhcp-4.3.4" ]; then
+  wget ftp://ftp.isc.org/isc/dhcp/4.3.4/dhcp-4.3.4.tar.gz
+  tar -xf dhcp-4.3.4.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+#patch -p1 -N -i $current_dir/patches/configure.patch
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib -I$package_dir/bind/bind-9.9.8-P4/lib/irs/include"
+export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib -I$package_dir/bind/bind-9.9.8-P4/lib/irs/include"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -lncurses -ltinfo -L$destination_dir/lib"
+export LD_LIBRARY_PATH="-L$destination_dir/lib"
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  export CROSS_COMPILE=$prefix-
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+  export BUILD_CC=gcc
+
+  make distclean
+
+  echo ac_cv_file__dev_random=true ./configure --prefix= --host=$target --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
+  ac_cv_file__dev_random=true ./configure --prefix= --host=$target --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

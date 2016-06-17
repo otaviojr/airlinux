@@ -1,0 +1,52 @@
+--- ./libtool	2016-06-17 00:54:47.341577532 -0300
++++ ./libtool	2016-06-17 01:02:28.794371410 -0300
+@@ -7502,6 +7502,10 @@
+ 		  ;;
+ 		esac
+ 		else
++                  echo "4.here?"
++                  if [ ! -f $deplib ]; then
++                    deplib=$lt_sysroot$deplib
++                  fi
+ 		  eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $deplib`
+ 		  test -z "$libdir" && \
+ 		    func_fatal_error "\`$deplib' is not a valid libtool archive"
+@@ -9708,7 +9712,15 @@
+ 		func_basename "$deplib"
+ 		name="$func_basename_result"
+ 		func_resolve_sysroot "$deplib"
+-		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $func_resolve_sysroot_result`
++		deplib=$func_resolve_sysroot_result
++                echo "3.here?"
++                if [ ! -f $deplib ]; then
++                  deplib=$lt_sysroot$deplib
++                fi
++		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $deplib`
++                if [ ! -f $libdir ]; then
++                  libdir=$lt_sysroot$libdir
++                fi
+ 		test -z "$libdir" && \
+ 		  func_fatal_error "\`$deplib' is not a valid libtool archive"
+ 		newdependency_libs+=" ${lt_sysroot:+=}$libdir/$name"
+@@ -9734,6 +9746,10 @@
+ 	      *.la)
+ 	        func_basename "$lib"
+ 		name="$func_basename_result"
++                echo "1.here?"
++                if [ ! -f $lib ]; then
++                  lib=$lt_sysroot$lib
++                fi
+ 		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $lib`
+ 		test -z "$libdir" && \
+ 		  func_fatal_error "\`$lib' is not a valid libtool archive"
+@@ -9753,6 +9769,10 @@
+ 		# the library:
+ 		func_basename "$lib"
+ 		name="$func_basename_result"
++                echo "2.here?"
++                if [ ! -f $lib ]; then
++                  lib=$lt_sysroot$lib
++                fi
+ 		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $lib`
+ 		test -z "$libdir" && \
+ 		  func_fatal_error "\`$lib' is not a valid libtool archive"

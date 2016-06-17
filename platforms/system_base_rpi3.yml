@@ -37,6 +37,12 @@ packages: [
 { package: "udev", script: "make" , parameters: ["system"]},
 { package: "openssl", script: "make" , parameters: ["system"]},
 { package: "curl", script: "make" , parameters: ["system"]},
+{ package: "libdb", script: "make" , parameters: ["system"]},
+{ package: "iproute2-4.4.0", script: "make" , parameters: ["system"]},
+{ package: "libmnl", script: "make" , parameters: ["system"]},
+{ package: "libnftnl", script: "make" , parameters: ["system"]},
+{ package: "iptables", script: "make" , parameters: ["system"]},
+{ package: "dhclient", script: "make" , parameters: ["system"]},
 { package: "systemd", script: "make" , parameters: ["system"]},
 { package: "vim", script: "make" , parameters: ["system"]},
 ]

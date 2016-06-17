@@ -1,0 +1,69 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling iptables for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/iptables-1.6.0"
+
+cd $download_dir
+if [ ! -d "iptables-1.6.0" ]; then
+  wget http://www.netfilter.org/projects/iptables/files/iptables-1.6.0.tar.bz2
+  tar -xf iptables-1.6.0.tar.bz2
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install flex
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -I$destination_dir/include/libmnl"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -lnftnl -lmnl -L$destination_dir/lib"
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  export CROSS_COMPILE=$prefix-
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  make distclean
+
+  echo ./configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
+  ./configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
+
+  patch -p1 -N -i $current_dir/patches/libtool.patch
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

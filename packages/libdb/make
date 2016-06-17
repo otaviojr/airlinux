@@ -1,0 +1,65 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libdb for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/db-6.2.23"
+
+cd $download_dir
+if [ ! -d "db-6.2.23" ]; then
+  wget http://download.oracle.com/berkeley-db/db-6.2.23.tar.gz
+  tar -xf db-6.2.23.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+cd build_unix
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib"
+export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
+
+
+if [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CROSS_COMPILE=$prefix-
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+  export BUILD_CC=gcc
+
+  make distclean
+
+  echo ../dist/configure --prefix= --host=$target --enable-compat185 --enable-shared --enable-smallbuild --enable-sql --disable-atomicsupport
+  ../dist/configure --prefix= --host=$target --enable-compat185 --enable-shared --enable-smallbuild --enable-sql --disable-atomicsupport
+
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"
