@@ -40,9 +40,11 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
 distro=$(get_distro_name)
 
-export CFLAGS="$cflags --sysroot=$destination_dir"
+export CFLAGS="$cflags"
+export LDFLAGS="$ldflags"
 
 if [ "x$stage" == "xall" ]; then
   export CROSS_COMPILE=$prefix-
@@ -50,7 +52,6 @@ if [ "x$stage" == "xall" ]; then
   export CC=$prefix-gcc
   export AR=$prefix-ar
   export AS=$prefix-as
-  export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
   echo ../configure --prefix= --host=$target --with-shared --with-termlib --enable-term-drive
   ../configure --prefix= --host=$target --with-shared --with-termlib --enable-term-drive

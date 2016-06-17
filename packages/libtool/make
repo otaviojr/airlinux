@@ -3,6 +3,7 @@
 stage="$1"
 destination="$2"
 arch="$3"
+cross_tools="$4"
 
 #Include our common functions
 . ./packages/common/functions
@@ -25,10 +26,27 @@ if [ -f "done-$stage.lock" ]; then
 fi
 
 target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
 
-echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
-./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
-make
-make DESTDIR=$destination_dir install
-
+if [ "x$stage" == "xstage1" ]; then
+  echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
+  ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
+  make
+  make DESTDIR=$destination_dir install
+elif [ "x$stage" == "xsystem" ]; then
+  export ARCH=$macro_target
+  export CROSS_COMPILE=$prefix-
+  export CFLAGS="$cflags"
+  export BUILD_CC=gcc
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export RANLIB=$prefix-ranlib
+  echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
+  ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
+  make
+  make DESTDIR=$destination_dir install
+fi
 touch "done-$stage.lock"
