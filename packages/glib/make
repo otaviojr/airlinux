@@ -67,10 +67,16 @@ if [ "x$stage" == "xsystem" ]; then
   export CC=$prefix-gcc
   export AR=$prefix-ar
   export AS=$prefix-as
+  export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
 
-  echo "glib_cv_stack_grows=no glib_cv_uscore=no ac_cv_func_posix_getpwuid_r=yes ac_cv_func_posix_getgrgid_r=yes ../configure --prefix=/ --host=$target --target=$target --disable-libelf"
-  glib_cv_stack_grows=no glib_cv_uscore=no ac_cv_func_posix_getpwuid_r=yes ac_cv_func_posix_getgrgid_r=yes ../configure --prefix=/ --host=$target --target=$target --disable-libelf
+  export glib_cv_stack_grows=no
+  export glib_cv_uscore=no
+  export ac_cv_func_posix_getpwuid_r=yes
+  export ac_cv_func_posix_getgrgid_r=yes
+
+  echo "../configure --prefix=/ --host=$target --target=$target --disable-libelf"
+  ../configure --prefix=/ --host=$target --target=$target --disable-libelf
   make LIBTOOL=$prefix-libtool
   make DESTDIR=$destination_dir install
 fi
