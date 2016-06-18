@@ -46,8 +46,8 @@ export PATH=$PATH:$cross_tools/dist/bin
 if [ "x$stage" == "xsystem" ]; then
   make distclean
 
-  echo ./configure --prefix= --host=$target
-  ./configure --prefix= --host=$target
+  echo ./configure --prefix= --host=$target --with-bashcompletiondir=/share/bash-completion/completions
+  ./configure --prefix= --host=$target --with-bashcompletiondir=/share/bash-completion/completions
   make
   make DESTDIR=$destination_dir install
 fi

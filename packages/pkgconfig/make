@@ -38,6 +38,7 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_cflags_for_arch $arch)
 
 distro=$(get_distro_name)
 
@@ -46,7 +47,8 @@ if [ "x$stage" == "xsystem" ]; then
 
   export ARCH=$macro_target
   export CROSS_COMPILE=$prefix-
-  export CFLAGS="$cflags --sysroot=$destination_dir"
+  export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+  export LDFLAGS="$ldflags --sysroot=$destination_dir"
   export GLIB_CFLAGS="-I$destination_dir/include/glib-2.0"
   export GLIB_LDFLAGS="-L$destination_dir/lib"
   export BUILD_CC=gcc

@@ -47,8 +47,8 @@ if [ "x$stage" == "xsystem" ]; then
 
   make distclean
 
-  echo ./configure --prefix= --host=$target --enable-makeinstall-chown=no
-  ./configure --prefix= --host=$target --enable-makeinstall-chown=no
+  echo ./configure --prefix= --host=$target --enable-makeinstall-chown=no --with-bashcompletiondir=/share/bash-completion/completions
+  ./configure --prefix= --host=$target --enable-makeinstall-chown=no --with-bashcompletiondir=/share/bash-completion/completions
 
   make
   make DESTDIR=$destination_dir install

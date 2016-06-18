@@ -67,8 +67,8 @@ if [ "x$stage" == "xsystem" ]; then
   export STRIP=$prefix-strip
   export SYSROOT=$destination_dir
 
-  echo cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-sysroot=$destination_dir
-  cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-sysroot=$destination_dir
+  echo cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions --with-sysroot=$destination_dir
+  cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions --with-sysroot=$destination_dir
 
   patch -p1 -N -i $current_dir/patches/libtool.patch
 
