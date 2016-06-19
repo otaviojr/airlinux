@@ -1,0 +1,25 @@
+--- ./src/mapi/Makefile.am	2016-06-18 21:42:46.314619371 -0300
++++ ./src/mapi/Makefile.am	2016-06-18 21:43:17.163537735 -0300
+@@ -232,6 +232,9 @@
+ endif
+ endif
+
++khrdir = $(includedir)/KHR
++khr_HEADERS = $(top_srcdir)/include/KHR/khrplatform.h
++
+ es2api/glapi_mapi_tmp.h: glapi/gen/gl_and_es_API.xml $(glapi_gen_mapi_deps)
+ 	$(MKDIR_GEN)
+ 	$(PYTHON_GEN) $(srcdir)/mapi_abi.py --mode lib --printer es2api \
+--- ./src/egl/Makefile.am	2016-06-18 21:42:02.329308697 -0300
++++ ./src/egl/Makefile.am	2016-06-18 21:42:29.406114278 -0300
+@@ -110,8 +110,8 @@
+
+ pkgconfig_DATA = main/egl.pc
+
+-khrdir = $(includedir)/KHR
+-khr_HEADERS = $(top_srcdir)/include/KHR/khrplatform.h
++#khrdir = $(includedir)/KHR
++#khr_HEADERS = $(top_srcdir)/include/KHR/khrplatform.h
+
+ egldir = $(includedir)/EGL
+ egl_HEADERS = \

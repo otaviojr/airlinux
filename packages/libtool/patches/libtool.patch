@@ -1,0 +1,51 @@
+--- ./libtool	2016-06-19 16:45:45.491840500 -0300
++++ ./libtool	2016-06-19 16:53:51.961689744 -0300
+@@ -185,7 +185,7 @@
+ nm_file_list_spec="@"
+
+ # The root where to search for dependent libraries,and in which our libraries should be installed.
+-lt_sysroot=/opt/airlinux_rpi3_tools/dist
++lt_sysroot=$SYSROOT
+
+ # The name of the directory that contains temporary libtool files.
+ objdir=.libs
+@@ -6826,6 +6826,11 @@
+ 	  ;;
+ 	esac # case $deplib
+
++	echo "1.fix?"
++        if [ ! -f $lib ]; then
++          lib=$lt_sysroot$lib
++        fi
++
+ 	if test "$found" = yes || test -f "$lib"; then :
+ 	else
+ 	  func_fatal_error "cannot find the library \`$lib' or unhandled argument \`$deplib'"
+@@ -7516,6 +7521,10 @@
+ 		  ;;
+ 		esac
+ 		else
++        	  echo "3.fix?"
++                  if [ ! -f $deplib ]; then
++                    deplib=$lt_sysroot$deplib
++                  fi
+ 		  eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $deplib`
+ 		  test -z "$libdir" && \
+ 		    func_fatal_error "\`$deplib' is not a valid libtool archive"
+@@ -9719,7 +9728,15 @@
+ 		func_basename "$deplib"
+ 		name="$func_basename_result"
+ 		func_resolve_sysroot "$deplib"
+-		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $func_resolve_sysroot_result`
++		echo "4.fix?"
++		lib=$func_resolve_sysroot_result
++                if [ ! -f $lib ]; then
++                  lib=$lt_sysroot$lib
++                fi
++		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $lib`
++                if [ ! -f $libdir ]; then
++                  libdir=$lt_sysroot$libdir
++                fi
+ 		test -z "$libdir" && \
+ 		  func_fatal_error "\`$deplib' is not a valid libtool archive"
+ 		newdependency_libs+=" ${lt_sysroot:+=}$libdir/$name"

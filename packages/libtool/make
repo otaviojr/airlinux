@@ -10,6 +10,8 @@ cross_tools="$4"
 
 echo "Cross-Compiling libtool for $arch at $destination"
 
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
 
@@ -30,20 +32,24 @@ macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
 
+export ARCH=$macro_target
+export CROSS_COMPILE=$prefix-
+export CFLAGS="$cflags"
+export BUILD_CC=gcc
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export RANLIB=$prefix-ranlib
+
 if [ "x$stage" == "xstage1" ]; then
-  echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
-  ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
+  echo "./configure --prefix=/ --program-prefix=$prefix- --host=$target --target=$target --with-sysroot=$destination_dir"
+  ./configure --prefix=/ --program-prefix=$prefix- --host=$target --target=$target --with-sysroot=$destination_dir
   make
+
+  patch -p1 -N -i $current_dir/patches/libtool.patch
+
   make DESTDIR=$destination_dir install
 elif [ "x$stage" == "xsystem" ]; then
-  export ARCH=$macro_target
-  export CROSS_COMPILE=$prefix-
-  export CFLAGS="$cflags"
-  export BUILD_CC=gcc
-  export CC=$prefix-gcc
-  export AR=$prefix-ar
-  export AS=$prefix-as
-  export RANLIB=$prefix-ranlib
   echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
   ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
   make

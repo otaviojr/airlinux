@@ -61,11 +61,11 @@ if [ "x$stage" == "xsystem" ]; then
 
   make distclean
 
-  echo ac_cv_file__dev_random=true ./configure --prefix= --host=$target
-  ac_cv_file__dev_random=true ./configure --prefix= --host=$target
+  echo ac_cv_file__dev_random=true ./configure --prefix=/ --host=$target --datadir=/share
+  ac_cv_file__dev_random=true ./configure --prefix=/ --host=$target --datadir=/share
 
-  make
-  make DESTDIR=$destination_dir install
+  make PREFIX=/
+  make PREFIX=/ DESTDIR=$destination_dir install
 fi
 
 touch "done-$stage.lock"

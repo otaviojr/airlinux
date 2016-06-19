@@ -1,0 +1,29 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Downloading binary firmware for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/raspberrypi_firmware"
+
+cd $download_dir
+if [ ! -d "raspberrypi_firmware" ]; then
+  git clone https://github.com/raspberrypi/firmware.git raspberrypi_firmware
+  wget https://mesa.freedesktop.org/archive/11.2.2/mesa-11.2.2.tar.xz
+fi
+
+if [ "x$stage" == "xsystem" ]; then
+  cp -Rf ./opt/vc $destination_dir/opt/vc
+fi
+
+touch "done-$stage.lock"

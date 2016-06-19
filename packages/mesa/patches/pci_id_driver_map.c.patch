@@ -1,0 +1,11 @@
+--- ./src/loader/pci_id_driver_map.c.old	2016-06-18 20:51:00.403404845 -0300
++++ ./src/loader/pci_id_driver_map.c	2016-06-18 20:41:04.508417778 -0300
+@@ -23,7 +23,7 @@
+
+ int is_nouveau_vieux(int fd);
+
+-#ifdef HAVE_LIBDRM
++#ifdef HAVE_LIBDRM_NO
+
+ #include <xf86drm.h>
+ #include <nouveau_drm.h>

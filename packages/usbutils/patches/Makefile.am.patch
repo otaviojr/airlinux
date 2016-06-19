@@ -1,0 +1,11 @@
+--- ./Makefile.am	2016-06-19 17:24:45.771242802 -0300
++++ ./Makefile.am	2016-06-19 17:25:06.867938511 -0300
+@@ -48,7 +48,7 @@
+ usb-devices.1: $(srcdir)/usb-devices.1.in
+ 	sed 's|VERSION|$(VERSION)|g' $< >$@
+
+-pkgconfigdir = $(datarootdir)/pkgconfig
++pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = usbutils.pc
+
+ usbutils.pc: $(srcdir)/usbutils.pc.in

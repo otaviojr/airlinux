@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling libnftnl for $arch at $destination - stage: $stage"
+echo "Cross-Compiling presentproto for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/libnftnl"
+package_dir="$download_dir/presentproto-1.0"
 
 cd $download_dir
-if [ ! -d "libnftnl" ]; then
-  git clone git://git.netfilter.org/libnftnl libnftnl
-  git checkout tags/libnftnl-1.0.6
+if [ ! -d "presentproto-1.0" ]; then
+  wget https://www.x.org/archive/individual/proto/presentproto-1.0.tar.gz
+  tar -xf presentproto-1.0.tar.gz
 fi
 
 cd $package_dir
@@ -28,6 +28,12 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
 target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
@@ -35,29 +41,25 @@ cflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
-export LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
+export CPPFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="--sysroot=$destination_dir"
 export CC=$prefix-gcc
 export AR=$prefix-ar
 export AS=$prefix-as
 export LD=$prefix-ld
 export RANLIB=$prefix-ranlib
-
+#export LIBTOOL=$prefix-libtool
 export CROSS_COMPILE=$prefix-
 export PATH=$PATH:$cross_tools/dist/bin
 
-#export LIBMNL_CFLAGS="-I$destination_dir/include"
-#export LIBMNL_LIBS="-L$destination_dir/lib -lmnl"
-export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
-export PKG_CONFIG_SYSROOT_DIR=$destination_dir
-
 if [ "x$stage" == "xsystem" ]; then
   make distclean
-  echo ./autogen.sh
-  ./autogen.sh
-  echo ./configure --prefix= --host=$target
-  ./configure --prefix= --host=$target
+
+  echo ../configure --prefix= --host=$target
+  ../configure --prefix= --host=$target
   make
   make DESTDIR=$destination_dir install
 fi
 
+cd ..
 touch "done-$stage.lock"

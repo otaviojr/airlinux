@@ -54,8 +54,8 @@ if [ "x$stage" == "xsystem" ]; then
 
   make distclean
 
-  echo ../dist/configure --prefix= --docdir=/share/libdb --host=$target --enable-compat185 --enable-shared --enable-smallbuild --enable-sql --disable-atomicsupport
-  ../dist/configure --prefix= --docdir=/share/libdb --host=$target --enable-compat185 --enable-shared --enable-smallbuild --enable-sql --disable-atomicsupport
+  echo ../dist/configure --prefix=/ --datadir=/share --host=$target --enable-compat185 --enable-shared --disable-log-checksum --disable-atomicsupport --enable-cxx
+  ../dist/configure --prefix=/ --datadir=/share --host=$target --enable-compat185 --enable-shared --disable-log-checksum --disable-atomicsupport --enable-cxx
 
   make
   make DESTDIR=$destination_dir install

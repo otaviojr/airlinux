@@ -1,0 +1,55 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling qt for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/qt-everywhere-opensource-src-5.7.0"
+
+cd $download_dir
+if [ ! -d "qt-everywhere-opensource-src-5.7.0" ]; then
+  wget http://download.qt.io/official_releases/qt/5.7/5.7.0/single/qt-everywhere-opensource-src-5.7.0.tar.gz
+  tar -xf qt-everywhere-opensource-src-5.7.0.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/rpi3_qmake.conf.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+qttarget=$(get_qttarget_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CROSS_COMPILE=$cross_tools/dist/bin/$prefix-
+if [ "x$stage" == "xsystem" ]; then
+  echo ../configure -prefix=/ -extprefix=$destination_dir -hostprefix=$destination_dir -testsdir=/share/qt/tests -examplesdir=/share/qt/examples -sysconfdir=/etc/qt -datadir=/share/qt -archdatadir=/share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -I$destination_dir/include/dbus-1.0 -I$destination_dir/include/glib-2.0 -v
+  ../configure -prefix=/ -extprefix=$destination_dir -hostprefix=$destination_dir -testsdir=/share/qt/tests -examplesdir=/share/qt/examples -sysconfdir=/etc/qt -datadir=/share/qt -archdatadir=/share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -I$destination_dir/include/dbus-1.0 -I$destination_dir/include/glib-2.0 -v
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

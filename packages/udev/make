@@ -40,16 +40,21 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
-export LDFLAGS="$cflags -L$destination_dir/lib --sysroot=$destination_dir -lrt"
-export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
-export BLKID_LIBS="-L$destination_dir/lib -lblkid"
-export KMOD_CFLAGS="-I$destination_dir/include"
-export KMOD_LIBS="-L$destination_dir/lib -lkmod"
-export GLIB_CFLAGS="-I$destination_dir/include -I$destination_dir/include/glib-2.0"
-export GLIB_LIBS="-L$destination_dir/lib -lglib-2.0"
+export LDFLAGS="$ldflags -L$destination_dir/lib --sysroot=$destination_dir -lrt"
+#export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
+#export BLKID_LIBS="-L$destination_dir/lib -lblkid"
+#export KMOD_CFLAGS="-I$destination_dir/include"
+#export KMOD_LIBS="-L$destination_dir/lib -lkmod"
+#export GLIB_CFLAGS="-I$destination_dir/include -I$destination_dir/include/glib-2.0"
+#export GLIB_LIBS="-L$destination_dir/lib -lglib-2.0"
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 
 if [ "x$stage" == "xsystem" ]; then
   export CROSS_COMPILE=$prefix-
@@ -63,10 +68,8 @@ if [ "x$stage" == "xsystem" ]; then
   echo "../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids" --with-sysroot=$destination_dir
   ../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids --with-sysroot=$destination_dir
 
-  patch -p1 -N -i $current_dir/patches/libtool.patch
-
-  make
-  make DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 fi
 
 cd ..

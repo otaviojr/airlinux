@@ -31,6 +31,8 @@ packages: [
 { package: "expat", script: "make" , parameters: ["system"]},
 { package: "dbus", script: "make" , parameters: ["system"]},
 { package: "util-linux", script: "make" , parameters: ["system"]},
+{ package: "libusb", script: "make" , parameters: ["system"]},
+{ package: "usbutils", script: "make" , parameters: ["system"]},
 { package: "gperf", script: "make" , parameters: ["system"]},
 { package: "libiscsi", script: "make" , parameters: ["system"]},
 { package: "kmod", script: "make" , parameters: ["system"]},

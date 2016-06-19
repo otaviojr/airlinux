@@ -43,7 +43,8 @@ else
 fi
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -I$destination_dir/include/libmnl"
-export LDFLAGS="$ldflags --sysroot=$destination_dir -lnftnl -lmnl -L$destination_dir/lib"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
+export SYSROOT=$destination_dir
 
 if [ "x$stage" == "xsystem" ]; then
   export PATH=$PATH:$cross_tools/dist/bin
@@ -60,10 +61,8 @@ if [ "x$stage" == "xsystem" ]; then
   echo ./configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
   ./configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
 
-  patch -p1 -N -i $current_dir/patches/libtool.patch
-
-  make
-  make DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 fi
 
 touch "done-$stage.lock"
