@@ -53,16 +53,19 @@ else
   exit 1
 fi
 
+export PATH=$PATH:$destination_dir/bin
+export ARCH=$macro_target
+export CROSS_COMPILE=$prefix-
+export LDFLAGS="-L$destination_dir/lib"
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+
+#export LIBFFI_CFLAGS="-I$destination_dir/include"
+#export LIBFFI_LIBS="-L$destination_dir/lib -lffi"
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+
+
 if [ "x$stage" == "xsystem" ]; then
-  export PATH=$PATH:$destination_dir/bin
-
-  export ARCH=$macro_target
-  export CROSS_COMPILE=$prefix-
-  export LDFLAGS="-L$destination_dir/lib"
-  export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
-  export LIBFFI_CFLAGS="-I$destination_dir/include"
-  export LIBFFI_LIBS="-L$destination_dir/lib -lffi"
-
   export BUILD_CC=gcc
   export CC=$prefix-gcc
   export AR=$prefix-ar

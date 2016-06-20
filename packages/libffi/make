@@ -45,13 +45,14 @@ export PATH=$PATH:$cross_tools/dist/bin
 
 patch -p1 -N -i $current_dir/patches/include_makefile.patch
 aclocal
+autoconf
 automake
 
 if [ "x$stage" == "xsystem" ]; then
   make distclean
 
-  echo ./configure --prefix= --host=$target
-  ./configure --prefix= --host=$target
+  echo ./configure --prefix=/ --includedir=/include --host=$target
+  ./configure --prefix=/ --includedir=/include --host=$target
   make
   make DESTDIR=$destination_dir install
 fi

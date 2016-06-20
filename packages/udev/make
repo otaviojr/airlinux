@@ -45,8 +45,8 @@ distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
 export LDFLAGS="$ldflags -L$destination_dir/lib --sysroot=$destination_dir -lrt"
-#export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
-#export BLKID_LIBS="-L$destination_dir/lib -lblkid"
+export USBUTILS_CFLAGS="-I$destination_dir/include"
+export USBUTILS_LIBS="-L$destination_dir/lib -lblkid"
 #export KMOD_CFLAGS="-I$destination_dir/include"
 #export KMOD_LIBS="-L$destination_dir/lib -lkmod"
 #export GLIB_CFLAGS="-I$destination_dir/include -I$destination_dir/include/glib-2.0"
@@ -65,8 +65,8 @@ if [ "x$stage" == "xsystem" ]; then
   export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
 
-  echo "../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids" --with-sysroot=$destination_dir
-  ../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids --with-sysroot=$destination_dir
+  echo "../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids --with-usb-ids-path=/var/lib/usbutils/usb.ids --with-sysroot=$destination_dir"
+  ../configure --prefix= --host=$target --disable-introspection --disable-keymap --disable-gudev --with-pci-ids-path=/var/lib/pciutils/pci.ids --with-usb-ids-path=/var/lib/usbutils/usb.ids --with-sysroot=$destination_dir
 
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
