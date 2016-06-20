@@ -44,11 +44,13 @@ cflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CROSS_COMPILE=$cross_tools/dist/bin/$prefix-
+export PKG_CONFIG_LIBDIR=$destination_dir/lib/pkgconfig
+
 if [ "x$stage" == "xsystem" ]; then
-  echo ../configure -prefix=/ -extprefix=$destination_dir -hostprefix=$destination_dir -testsdir=/share/qt/tests -examplesdir=/share/qt/examples -sysconfdir=/etc/qt -datadir=/share/qt -archdatadir=/share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -I$destination_dir/include/dbus-1.0 -I$destination_dir/include/glib-2.0 -v
-  ../configure -prefix=/ -extprefix=$destination_dir -hostprefix=$destination_dir -testsdir=/share/qt/tests -examplesdir=/share/qt/examples -sysconfdir=/etc/qt -datadir=/share/qt -archdatadir=/share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -I$destination_dir/include/dbus-1.0 -I$destination_dir/include/glib-2.0 -v
+  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -v"
+  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -v
   make
-  make DESTDIR=$destination_dir install
+  make install
 fi
 
 cd ..

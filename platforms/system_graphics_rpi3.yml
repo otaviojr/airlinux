@@ -17,9 +17,9 @@ packages: [
 { package: "xextproto", script: "make" , parameters: ["system"]},
 { package: "libxext", script: "make" , parameters: ["system"]},
 { package: "xdamageproto", script: "make" , parameters: ["system"]},
-{ package: "libxdamage", script: "make" , parameters: ["system"]},
 { package: "xfixesproto", script: "make" , parameters: ["system"]},
 { package: "libxfixes", script: "make" , parameters: ["system"]},
+{ package: "libxdamage", script: "make" , parameters: ["system"]},
 { package: "mesa", script: "make" , parameters: ["system"]},
 { package: "qt", script: "make", parameters: ["system"] },
 ]

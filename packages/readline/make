@@ -1,0 +1,63 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling readline for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/readline-6.3"
+
+cd $download_dir
+if [ ! -d "readline-6.3" ]; then
+  wget ftp://ftp.cwru.edu/pub/bash/readline-6.3.tar.gz
+  tar -xf readline-6.3.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  echo bash_cv_wcwidth_broken=no ../configure --prefix= --host=$target -disable-static
+  bash_cv_wcwidth_broken=no ../configure --prefix= --host=$target -disable-static
+  make SHLIB_LIBS=-lncurses
+  make SHLIB_LIBS=-lncurses DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

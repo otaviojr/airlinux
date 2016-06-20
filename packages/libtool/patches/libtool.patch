@@ -43,9 +43,9 @@
 +                  lib=$lt_sysroot$lib
 +                fi
 +		eval libdir=`${SED} -n -e 's/^libdir=\(.*\)$/\1/p' $lib`
-+                if [ ! -f $libdir ]; then
-+                  libdir=$lt_sysroot$libdir
-+                fi
++                #if [ ! -f $libdir ]; then
++                #  libdir=$lt_sysroot$libdir
++                #fi
  		test -z "$libdir" && \
  		  func_fatal_error "\`$deplib' is not a valid libtool archive"
  		newdependency_libs+=" ${lt_sysroot:+=}$libdir/$name"

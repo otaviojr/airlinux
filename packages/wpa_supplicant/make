@@ -1,0 +1,72 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling wpa_supplicant for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/wpa_supplicant-2.5"
+
+cd $download_dir
+if [ ! -d "wpa_supplicant-2.5" ]; then
+  wget http://w1.fi/releases/wpa_supplicant-2.5.tar.gz
+  tar -xf wpa_supplicant-2.5.tar.gz
+fi
+
+cd $package_dir/wpa_supplicant
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -I$destination_dir/include/libnl3"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  cp $current_dir/config/config .config
+  sed -i -e 's#${includedir}#'$destination_dir'/include#g' .config
+  sed -i -e 's#${flags}#'$cflags'#g' .config
+
+  make BINDIR=/sbin LIBDIR=/lib
+
+  install -v -m755 wpa_{cli,passphrase,supplicant} $destination_dir/sbin/ &&
+  install -v -m644 doc/docbook/wpa_supplicant.conf.5 $destination_dir/share/man/man5/ &&
+  install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 $destination_dir/share/man/man8/
+
+  install -v -m644 dbus/fi.{epitest.hostap.WPASupplicant,w1.wpa_supplicant1}.service $destination_dir/share/dbus-1/system-services/ &&
+  install -v -m644 dbus/dbus-wpa_supplicant.conf $destination_dir/etc/dbus-1/system.d/wpa_supplicant.conf
+
+  install -v -m755 wpa_gui-qt4/wpa_gui $destination_dir/bin/ &&
+  install -v -m644 doc/docbook/wpa_gui.8 $destination_dir/share/man/man8/ &&
+  install -v -m644 wpa_gui-qt4/wpa_gui.desktop $destination_dir/share/applications/ &&
+  install -v -m644 wpa_gui-qt4/icons/wpa_gui.svg $destination_dir/share/pixmaps/
+fi
+
+touch "done-$stage.lock"
