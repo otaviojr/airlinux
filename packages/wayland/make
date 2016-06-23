@@ -1,0 +1,87 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling wayland for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/wayland"
+
+cd $download_dir
+if [ ! -d "wayland" ]; then
+  git clone git://anongit.freedesktop.org/wayland/wayland wayland
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install libffi-dev libexpat1-dev libxml2-dev doxygen xmlto graphviz
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+./autogen.sh
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+qttarget=$(get_qttarget_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+
+if [ "x$stage" == "xsystem" ]; then
+  echo "../configure --prefix=/ --disable-documentation --without-host-scanner"
+  ../configure --prefix=/ --disable-documentation --without-host-scanner
+  make
+  make DESTDIR=/tmp/wayland install
+
+  export PATH=$PATH:/tmp/wayland/bin
+
+  make distclean
+
+  export CFLAGS="$cflags --sysroot=$destination_dir"
+  export CXXFLAGS="$cflags --sysroot=$destination_dir"
+  export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+  export CROSS_COMPILE=$cross_tools/dist/bin/$prefix-
+  export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+  export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+  export SYSROOT=$destination_dir
+
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+  export STRIP=$prefix-strip
+
+  echo "../configure --prefix=/ --host=$target --disable-documentation --with-host-scanner"
+  ../configure --prefix=/ --host=$target --disable-documentation --with-host-scanner=yes
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

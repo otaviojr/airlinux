@@ -1,6 +1,9 @@
 packages: [
 { package: "libjpeg", script: "make" , parameters: ["system"]},
 { package: "libpng", script: "make" , parameters: ["system"]},
+{ package: "libxml", script: "make" , parameters: ["system"]},
+{ package: "wayland", script: "make" , parameters: ["system"]},
+{ package: "wayland-protocols", script: "make" , parameters: ["system"]},
 { package: "glproto", script: "make" , parameters: ["system"]},
 { package: "libpthreadstubs", script: "make" , parameters: ["system"]},
 { package: "libdrm", script: "make" , parameters: ["system"]},
@@ -20,6 +23,6 @@ packages: [
 { package: "xfixesproto", script: "make" , parameters: ["system"]},
 { package: "libxfixes", script: "make" , parameters: ["system"]},
 { package: "libxdamage", script: "make" , parameters: ["system"]},
-{ package: "mesa", script: "make" , parameters: ["system"]},
+{ package: "mesa", script: "make" , parameters: ["system-wayland"]},
 { package: "qt", script: "make", parameters: ["system"] },
 ]

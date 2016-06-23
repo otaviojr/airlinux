@@ -46,10 +46,11 @@ distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
 export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
-export LDFLAGS="--sysroot=$destination_dir"
+export LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
 
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dir
 
 export CC=$prefix-gcc
 export CXX=$prefix-g++
@@ -58,17 +59,20 @@ export AS=$prefix-as
 export LD=$prefix-ld
 export CXXLD=$prefix-ld
 export RANLIB=$prefix-ranlib
-#export LIBTOOL=$prefix-libtool
+
 export CROSS_COMPILE=$prefix-
-export PATH=$PATH:$cross_tools/dist/bin
+export PATH=$PATH:$cross_tools/dist/bin:/tmp/wayland/bin
 
 if [ "x$stage" == "xsystem" ]; then
-  make distclean
-
   echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --enable-gles2
   ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
   make
   make DESTDIR=$destination_dir install
+elif [ "x$stage" == "xsystem-wayland" ]; then
+  echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --enable-gles2
+  ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 fi
 
 cd ..

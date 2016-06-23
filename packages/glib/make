@@ -53,7 +53,7 @@ else
   exit 1
 fi
 
-export PATH=$PATH:$destination_dir/bin
+export PATH=$PATH:$cross_tools/dist/bin
 export ARCH=$macro_target
 export CROSS_COMPILE=$prefix-
 export LDFLAGS="-L$destination_dir/lib"

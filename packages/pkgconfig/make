@@ -54,7 +54,7 @@ export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 
 if [ "x$stage" == "xsystem" ]; then
-  export PATH=$PATH:$destination_dir/bin
+  export PATH=$PATH:$cross_tools/dist/bin
 
   export BUILD_CC=gcc
   export CC=$prefix-gcc

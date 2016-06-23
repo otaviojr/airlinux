@@ -42,9 +42,17 @@ else
   exit 1
 fi
 
-export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -I$destination_dir/include/libmnl"
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
 export LDFLAGS="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
+
 export SYSROOT=$destination_dir
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+
+#export libmnl_CFLAGS="-I$destination_dir/include"
+#export libmnl_LIBS="-L$destination_dir/lib -lmnl"
+#export libnftnl_CFLAGS="-I$destination_dir/include"
+#export libnftnl_LIBS="-L$destination_dir/lib -lnftnl"
 
 if [ "x$stage" == "xsystem" ]; then
   export PATH=$PATH:$cross_tools/dist/bin

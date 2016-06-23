@@ -42,14 +42,19 @@ export AS=$prefix-as
 export RANLIB=$prefix-ranlib
 
 if [ "x$stage" == "xstage1" ]; then
+  export PATH=$PATH:$destination_dir/bin
+
+  make distclean
+
   echo "./configure --prefix=/ --program-prefix=$prefix- --host=$target --target=$target --with-sysroot=$destination_dir"
   ./configure --prefix=/ --program-prefix=$prefix- --host=$target --target=$target --with-sysroot=$destination_dir
+
   make
-
   patch -p1 -N -i $current_dir/patches/libtool.patch
-
   make DESTDIR=$destination_dir install
+
 elif [ "x$stage" == "xsystem" ]; then
+  export PATH=$PATH:$cross_tools/dist/bin
   echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
   ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
   make

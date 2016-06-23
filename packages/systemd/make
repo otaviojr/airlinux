@@ -48,6 +48,7 @@ distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -DHAVE_LINUX_BTRFS_H"
 export LDFLAGS="$cflags -L$destination_dir/lib --sysroot=$destination_dir"
+export CPPFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -DHAVE_LINUX_BTRFS_H"
 
 #export BLKID_CFLAGS="-I$destination_dir/include  -I$destination_dir/include/blkid"
 #export BLKID_LIBS="-L$destination_dir/lib -lblkid"
@@ -56,6 +57,7 @@ export LDFLAGS="$cflags -L$destination_dir/lib --sysroot=$destination_dir"
 #export MOUNT_CFLAGS="-I$destination_dir/include -I$destination_dir/include/libmount"
 #export MOUNT_LIBS="-L$destination_dir/lib -lmount"
 export SYSROOT=$destination_dir
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 #export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 #export LT_SYS_LIBRARY_PATH="$destination_dir:$destination_dir/lib"
@@ -74,7 +76,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   #patch -p1 -N -i $current_dir/patches/libtool.patch
 
-  make LIBTOOL=$prefix-libtool
+  make
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 fi
 

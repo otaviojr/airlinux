@@ -46,13 +46,19 @@ patch -p1 -N -i $current_dir/patches/Makefile_libbz2_so.patch
 
 if [ "x$stage" == "xsystem" ]; then
   make clean
+
   make
   make DESTDIR=$destination_dir install
   make clean
   make -f Makefile-libbz2_so
-  make -f Makefile-libbz2_so DESTDIR=$destination_dir install
-   cp libbz2.so.1.0* $destination_dir/lib
-   ln -s $destination_dir/lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
+
+  rm $destination_dir/lib/libbz2.so*
+  cp -av libbz2.so* $destination_dir/lib
+  ln -s $destination_dir/lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
+  #cp -v bzip2-shared $destination_dir/bin/bzip2
+  #rm -v $destination_dir/bin/{bunzip2,bzcat}
+  #ln -sv bzip2 $destination_dir/bin/bunzip2
+  #ln -sv bzip2 $destination_dir/bin/bzcat
 fi
 
 touch "done-$stage.lock"
