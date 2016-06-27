@@ -27,8 +27,6 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
-./autogen.sh
-
 if [ -d "build" ]; then
   rm -rf "build"
 fi
@@ -61,8 +59,8 @@ if [ "x$stage" == "xsystem" ]; then
   export RANLIB=$prefix-ranlib
   export STRIP=$prefix-strip
 
-  echo "../configure --prefix=/ --host=$target"
-  ../configure --prefix=/ --host=$target
+  echo "../autogen.sh --prefix=/ --host=$target"
+  ../autogen.sh --prefix=/ --host=$target
   make
   make DESTDIR=$destination_dir install
 fi

@@ -35,7 +35,6 @@ else
   echo "Non debian platform not supported"
   exit 1
 fi
-./autogen.sh
 
 if [ -d "build" ]; then
   rm -rf "build"
@@ -51,8 +50,8 @@ cflags=$(get_cflags_for_arch $arch)
 ldflags=$(get_ldflags_for_arch $arch)
 
 if [ "x$stage" == "xsystem" ]; then
-  echo "../configure --prefix=/ --disable-documentation --without-host-scanner"
-  ../configure --prefix=/ --disable-documentation --without-host-scanner
+  echo "../autogen.sh --prefix=/ --disable-documentation --without-host-scanner"
+  ../autogen.sh --prefix=/ --disable-documentation --without-host-scanner
   make
   make DESTDIR=/tmp/wayland install
 

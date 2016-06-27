@@ -48,15 +48,18 @@ export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 export SYSROOT=$destination_dir
 
+export PATH=$PATH:/tmp/wayland/bin
+export QT_WAYLAND_SCANNER=/tmp/wayland/bin/wayland-scanner
+
 if [ "x$stage" == "xsystem" ]; then
-  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -I$destination_dir/include/drm -v"
-  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -I$destination_dir/include/drm -v
+  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -no-mtdev -I$destination_dir/include/drm -v"
+  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -no-mtdev -I$destination_dir/include/drm -v
   make
   make INSTALL_ROOT=/tmp/qt install
 
-  sudo mv /tmp/qt/$destination_dir/bin/* $destination_dir/bin
-  sudo mv /tmp/qt/$destination_dir/include/* $destination_dir/include
-  sudo mv /tmp/qt/$destination_dir/lib/* $destination_dir/lib
+  sudo cp -Rf /tmp/qt/$destination_dir/bin/* $destination_dir/bin
+  sudo cp -Rf /tmp/qt/$destination_dir/include/* $destination_dir/include
+  sudo cp -Rf /tmp/qt/$destination_dir/lib/* $destination_dir/lib
 fi
 
 cd ..

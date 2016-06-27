@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#Include our common functions
+. ./packages/common/functions
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+distro=$(get_distro_name)
+
+echo "Creating deploy image"
+sudo mkdir $destination/deploy
+sudo mkdir $destination/deploy/mount1
+sudo mkdir $destination/deploy/mount2
+sudo mkdir $destination/deploy/mount3
+
+
+size=4585938
+
+dd if=/dev/zero of=$destination/deploy/system.img bs=512 count=$size
+losetup /dev/loop1 $destination/deploy/system.img
