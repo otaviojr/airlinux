@@ -9,6 +9,8 @@ arch="$3"
 
 echo "Cross-Compiling Pi-Kernel for $arch at $destination - stage: $stage"
 
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
 cross_tools="$4"

@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling readline for $arch at $destination - stage: $stage"
+echo "Cross-Compiling parted for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/readline-6.3"
+package_dir="$download_dir/parted-3.2"
 
 cd $download_dir
-if [ ! -d "readline-6.3" ]; then
-  wget ftp://ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
-  tar -xf readline-6.3.tar.gz
+if [ ! -d "parted-3.2" ]; then
+  wget http://ftp.gnu.org/gnu/parted/parted-3.2.tar.xz
+  tar -xf parted-3.2.tar.xz
 fi
 
 cd $package_dir
@@ -38,11 +38,9 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
-ldflags=$(get_ldflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir"
-export LDFLAGS="$ldflags --sysroot=$destination_dir"
 
 if [ "x$stage" == "xsystem" ]; then
   export CROSS_COMPILE=$prefix-
@@ -53,10 +51,10 @@ if [ "x$stage" == "xsystem" ]; then
   export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
 
-  echo bash_cv_wcwidth_broken=no ../configure --prefix= --host=$target -disable-static
-  bash_cv_wcwidth_broken=no ../configure --prefix= --host=$target -disable-static
-  make SHLIB_LIBS=-lncurses
-  make SHLIB_LIBS=-lncurses DESTDIR=$destination_dir install
+  echo ../configure --prefix= --host=$target
+  ../configure --prefix= --host=$target
+  make
+  make DESTDIR=$destination_dir install
 fi
 
 cd ..

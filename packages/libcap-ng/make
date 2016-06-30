@@ -1,0 +1,61 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libcap-ng for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/libcap-ng-0.7.7"
+
+cd $download_dir
+if [ ! -d "libcap-ng-0.7.7" ]; then
+  wget https://people.redhat.com/sgrubb/libcap-ng/libcap-ng-0.7.7.tar.gz
+  tar -xf libcap-ng-0.7.7.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+export CROSS_COMPILE=$prefix-
+
+export PATH=$PATH:$cross_tools/dist/bin
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
+
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dir
+
+if [ "x$stage" == "xsystem" ]; then
+  make distclean
+
+  echo ./configure --prefix= --host=$target
+  ./configure --prefix= --host=$target
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

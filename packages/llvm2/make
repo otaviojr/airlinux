@@ -1,0 +1,71 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libusb for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/LVM2.2.02.99"
+
+cd $download_dir
+if [ ! -d "LVM2.2.02.99" ]; then
+  wget ftp://sources.redhat.com/pub/lvm2/releases/LVM2.2.02.99.tgz
+  tar -xf LVM2.2.02.99.tgz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/readline.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export CPPFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="--sysroot=$destination_dir"
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dir
+
+if [ "x$stage" == "xsystem" ]; then
+  make distclean
+
+  echo ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ../configure --prefix= --host=$target
+  ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ../configure --prefix= --host=$target
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

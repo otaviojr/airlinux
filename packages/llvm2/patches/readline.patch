@@ -1,0 +1,10 @@
+--- ./tools/lvm.c	2016-06-29 18:26:00.341820845 -0300
++++ ./tools/lvm.c	2016-06-29 18:26:15.057175701 -0300
+@@ -185,7 +185,7 @@
+ 	char *input = NULL, *args[MAX_ARGS], **argv;
+
+ 	rl_readline_name = "lvm";
+-	rl_attempted_completion_function = (CPPFunction *) _completion;
++	rl_attempted_completion_function = (rl_completion_func_t *) _completion;
+
+ 	_read_history(cmd);

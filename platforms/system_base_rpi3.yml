@@ -25,6 +25,7 @@ packages: [
 { package: "libpam", script: "make" , parameters: ["system"]},
 { package: "shadow", script: "make" , parameters: ["system"]},
 { package: "libcap", script: "make" , parameters: ["system"]},
+{ package: "libcap-ng", script: "make" , parameters: ["system"]},
 { package: "coreutils", script: "make" , parameters: ["system"]},
 { package: "findutils", script: "make" , parameters: ["system"]},
 { package: "readline", script: "make" , parameters: ["system"]},
@@ -52,4 +53,6 @@ packages: [
 { package: "wpa_supplicant", script: "make" , parameters: ["system"]},
 { package: "usbutils", script: "make" , parameters: ["system"]},
 { package: "vim", script: "make" , parameters: ["system"]},
+{ package: "llvm2", script: "make" , parameters: ["system"]},
+{ package: "parted", script: "make" , parameters: ["system"]},
 ]
