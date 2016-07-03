@@ -26,5 +26,7 @@ mkdir ./dev/pts
 mkdir ./dev/shm
 mkdir sys
 mkdir proc
+mkdir run
+mkdir tmp
 mkdir var
 mkdir ./var/lock

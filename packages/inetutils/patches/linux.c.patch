@@ -1,0 +1,13 @@
+--- ./ifconfig/system/linux.c	2016-07-02 22:50:19.274690118 -0300
++++ ./ifconfig/system/linux.c	2016-07-02 22:52:17.251793306 -0300
+@@ -21,6 +21,10 @@
+
+ #include <config.h>
+
++#ifndef PATH_PROCNET_DEV
++#define PATH_PROCNET_DEV "/proc/net/dev"
++#endif
++
+ #include <sys/stat.h>
+ #include <stdio.h>
+ #include <errno.h>

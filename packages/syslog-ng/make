@@ -1,0 +1,67 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling syslog-ng for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/syslog-ng-3.7.3"
+
+cd $download_dir
+if [ ! -d "syslog-ng-3.7.3" ]; then
+  wget https://github.com/balabit/syslog-ng/releases/download/syslog-ng-3.7.3/syslog-ng-3.7.3.tar.gz
+  tar -xf syslog-ng-3.7.3.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+
+if [ "x$stage" == "xsystem" ]; then
+  echo ../configure --prefix= --host=$target --disable-python --disable-amqp --disable-mongodb
+  ../configure --prefix= --host=$target --disable-python --disable-amqp --disable-mongodb
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

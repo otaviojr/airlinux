@@ -52,6 +52,8 @@ if [ "x$stage" == "xsystem" ]; then
 
   make
   make DESTDIR=$destination_dir install
+
+  cp -Rf $current_dir/config/fstab $destination_dir/etc
 fi
 
 touch "done-$stage.lock"

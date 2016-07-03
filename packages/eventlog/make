@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling shadow for $arch at $destination - stage: $stage"
+echo "Cross-Compiling eventlog for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/shadow-4.2.1"
+package_dir="$download_dir/eventlog-0.2.12"
 
 cd $download_dir
-if [ ! -d "shadow-4.2.1" ]; then
-  wget http://pkg-shadow.alioth.debian.org/releases/shadow-4.2.1.tar.xz
-  tar -xf shadow-4.2.1.tar.xz
+if [ ! -d "eventlog-0.2.12" ]; then
+  wget https://my.balabit.com/downloads/eventlog/0.2/eventlog_0.2.12.tar.gz
+  tar -xf eventlog_0.2.12.tar.gz
 fi
 
 cd $package_dir
@@ -38,19 +38,29 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 
 if [ "x$stage" == "xsystem" ]; then
-  export PATH=$PATH:$cross_tools/dist/bin
-  echo ../configure --prefix= --host=$target --enable-subordinate-ids=no --enable-shared --without-selinux
-  ../configure --prefix= --host=$target --enable-subordinate-ids=no --enable-shared --without-selinux
-  echo "#define ENABLE_SUBIDS 1" >> config.h
+  echo ../configure --prefix= --host=$target
+  ../configure --prefix= --host=$target
   make
   make DESTDIR=$destination_dir install
-
-  sudo cp -Rf $current_dir/config/etc/* $destination_dir/etc/
 fi
 
 cd ..

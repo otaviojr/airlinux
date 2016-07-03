@@ -34,12 +34,13 @@ fi
 sudo dd if=/dev/zero of=$destination/deploy/system.img bs=512 count=$size
 sudo losetup /dev/loop1 $destination/deploy/system.img
 sudo sfdisk /dev/loop1 < $current_dir/config/partitions/$arch.layout
+sudo losetup -d /dev/loop1
 devices=($(sudo kpartx -v -a $destination/deploy/system.img | sed -n 's|.*\(loop[0-9]*p[0-9]*\).*|\1|gp'))
 echo "Creating file system at:"
 echo "FAT32: ${devices[0]}"
 echo "EXT3: ${devices[1]}"
-sudo mkfs -T vfat /dev/mapper/${devices[0]}
-sudo mkfs -T ext3 /dev/mapper/${devices[1]}
+sudo mkfs.vfat -n 'BOOT' /dev/mapper/${devices[0]}
+sudo mkfs.ext3 /dev/mapper/${devices[1]}
 sudo mount /dev/mapper/${devices[0]} $destination/deploy/mount1
 sudo mount /dev/mapper/${devices[1]} $destination/deploy/mount2
 echo "Copying boot files"
@@ -49,4 +50,3 @@ sudo cp -Rf $destination/dist/* $destination/deploy/mount2
 sudo umount $destination/deploy/mount1
 sudo umount $destination/deploy/mount2
 sudo kpartx -d -v $destination/deploy/system.img
-sudo losetup -d /dev/loop1
