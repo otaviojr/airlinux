@@ -34,6 +34,7 @@ packages: [
 { package: "findutils", script: "make" , parameters: ["system"]},
 { package: "readline", script: "make" , parameters: ["system"]},
 { package: "inetutils", script: "make" , parameters: ["system"]},
+{ package: "wireless-tools", script: "make" , parameters: ["system"]},
 { package: "sed", script: "make" , parameters: ["system"]},
 { package: "grep", script: "make" , parameters: ["system"]},
 { package: "expat", script: "make" , parameters: ["system"]},

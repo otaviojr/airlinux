@@ -1,0 +1,21 @@
+--- ./Makefile	2016-07-04 00:20:34.888539568 -0300
++++ ./Makefile	2016-07-04 00:24:25.303684407 -0300
+@@ -5,14 +5,14 @@
+ ## Installation directory. By default, go in /usr/local.
+ ## Distributions should probably use /, but they probably know better...
+ ifndef PREFIX
+-  PREFIX = /usr/local
++  PREFIX = /
+ endif
+
+ ## Compiler to use (modify this for cross compile).
+-CC = gcc
++CC = $(BUILD_CC)
+ ## Other tools you need to modify for cross compile (static lib only).
+-AR = ar
+-RANLIB = ranlib
++AR = $(BUILD_AR)
++RANLIB = $(BUILD_RANLIB)
+
+ ## Uncomment this to build tools using static version of the library.
+ ## Mostly useful for embedded platforms without ldd, or to create
