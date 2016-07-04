@@ -43,6 +43,13 @@ sudo mkfs.vfat -n 'BOOT' /dev/mapper/${devices[0]}
 sudo mkfs.ext3 /dev/mapper/${devices[1]}
 sudo mount /dev/mapper/${devices[0]} $destination/deploy/mount1
 sudo mount /dev/mapper/${devices[1]} $destination/deploy/mount2
+
+echo "Preparing system files"
+
+#Set /etc files and directories mode
+sudo chmod -Rf 644 $destination/dist/etc/*
+sudo find $destination/dist/etc -iname '*' -type d -exec chmod 755 {} \;
+
 echo "Copying boot files"
 sudo cp -Rf $destination/dist/boot/* $destination/deploy/mount1
 echo "Copying system files"

@@ -38,20 +38,27 @@ target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dir
+
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
 
 if [ "x$stage" == "xsystem" ]; then
-  export CROSS_COMPILE=$prefix-
-  export PATH=$PATH:$cross_tools/dist/bin
-  export CC=$prefix-gcc
-  export AR=$prefix-ar
-  export AS=$prefix-as
-  export LD=$prefix-ld
-  export RANLIB=$prefix-ranlib
-  echo ../configure --prefix= --host=$target
-  ../configure --prefix= --host=$target
+  echo ac_cv_func_getgroups_works=yes ac_cv_func_chown_works=yes ../configure --prefix= --host=$target
+  ac_cv_func_getgroups_works=yes ac_cv_func_chown_works=yes ../configure --prefix= --host=$target
   make
   make DESTDIR=$destination_dir install
 fi

@@ -60,6 +60,7 @@ if [ "x$stage" == "xsystem" ]; then
   sudo cp -Rf /tmp/qt/$destination_dir/bin/* $destination_dir/bin
   sudo cp -Rf /tmp/qt/$destination_dir/include/* $destination_dir/include
   sudo cp -Rf /tmp/qt/$destination_dir/lib/* $destination_dir/lib
+  sudo cp -Rf /tmp/qt/share/qt $destination_dir/share
 fi
 
 cd ..

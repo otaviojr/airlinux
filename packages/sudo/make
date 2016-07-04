@@ -61,6 +61,10 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target
   make
   sudo PATH=$PATH:$cross_tools/dist/bin make DESTDIR=$destination_dir install
+
+  sudo chmod u+s $destination_dir/bin/sudo
+  sudo cp $current_dir/config/etc/pam.d/sudo $destination_dir/etc/pam.d
+  sudo cp $current_dir/config/etc/sudoers $destination_dir/etc/
 fi
 
 cd ..

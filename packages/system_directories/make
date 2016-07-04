@@ -13,6 +13,7 @@ mkdir dev
 mkdir boot
 mkdir etc
 mkdir home
+mkdir root
 mkdir -p home/airlinux
 sudo chown 1001:1001 home/airlinux
 sudo mknod -m 660 ./dev/console c 5 1
@@ -26,7 +27,19 @@ mkdir ./dev/pts
 mkdir ./dev/shm
 mkdir sys
 mkdir proc
+ln -sv /proc/self/mounts ./etc/mtab
 mkdir run
+mkdir ./run/lock
 mkdir tmp
 mkdir var
+mkdir ./var/run
+touch ./var/run/utmp
+touch ./var/run/btmp
+touch ./var/run/wtmp
+touch ./var/run/lastlog
 mkdir ./var/lock
+mkdir ./var/tmp
+mkdir ./var/opt
+mkdir ./var/cache
+mkdir ./var/db
+mkdir ./var/local

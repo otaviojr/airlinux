@@ -48,8 +48,8 @@ export PATH=$PATH:$cross_tools/dist/bin
 if [ "x$stage" == "xsystem" ]; then
   make distclean
 
-  echo ./configure --prefix= --host=$target --disable-nis --enable-read-both-confs --includedir=/include/security
-  ./configure --prefix= --host=$target --disable-nis --enable-read-both-confs --includedir=/include/security
+  echo ./configure --prefix= --host=$target --disable-nis --enable-db=no --enable-read-both-confs --includedir=/include/security
+  ./configure --prefix= --host=$target --disable-nis --enable-db=no --enable-read-both-confs --includedir=/include/security
   make
   make DESTDIR=$destination_dir install
 
