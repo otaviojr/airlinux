@@ -1,0 +1,82 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling openssh for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/openssh-7.2p2"
+
+cd $download_dir
+if [ ! -d "openssh-7.2p2" ]; then
+  wget http://mirrors.sonic.net/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz
+  tar -xf openssh-7.2p2.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/Makefile.in.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="--sysroot=$destination_dir"
+
+export cross=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+export STRIP=$prefix-strip
+
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dirs
+
+if [ "x$stage" == "xsystem" ]; then
+  echo ../configure --prefix= --host=$target --target=$target --disable-strip --with-pam --disable-etc-default-login --sysconfdir=/etc/ssh --without-hardening --without-stackprotect
+  ../configure --prefix= --host=$target --target=$target --disable-strip --with-pam --disable-etc-default-login --sysconfdir=/etc/ssh --without-hardening --without-stackprotect
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+
+  cp -Rf $current_dir/config/etc/ssh/* $destination_dir/etc/ssh
+  cp -Rf $current_dir/config/etc/pam.d/* $destination_dir/etc/pam.d
+
+  #use host key gen to generate host key
+  ssh-keygen -q -t rsa -Nairlinux -f $destination_dir/etc/ssh/ssh_host_rsa_key
+  ssh-keygen -q -t dsa -Nairlinux -f $destination_dir/etc/ssh/ssh_host_dsa_key
+  ssh-keygen -q -t ecdsa -Nairlinux -f $destination_dir/etc/ssh/ssh_host_ecdsa_key
+  ssh-keygen -q -t ed25519 -Nairlinux -f $destination_dir/etc/ssh/ssh_host_ed25519_key
+
+  cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system/
+  ln -s /lib/systemd/system/ssh.service $destination_dir/etc/systemd/system/sshd.service
+fi
+
+cd ..
+touch "done-$stage.lock"

@@ -1,0 +1,19 @@
+--- ./Makefile.in	2016-07-06 12:22:26.289103260 -0300
++++ ./Makefile.in	2016-07-06 12:22:39.586663270 -0300
+@@ -41,7 +41,7 @@
+ 	-D_PATH_PRIVSEP_CHROOT_DIR=\"$(PRIVSEP_PATH)\"
+
+ CC=@CC@
+-LD=@LD@
++LD=@CC@
+ CFLAGS=@CFLAGS@
+ CPPFLAGS=-I. -I$(srcdir) @CPPFLAGS@ $(PATHS) @DEFS@
+ LIBS=@LIBS@
+@@ -286,7 +286,7 @@
+ 	$(AUTORECONF)
+ 	-rm -rf autom4te.cache
+
+-install: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files install-sysconf host-key check-config
++install: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files install-sysconf host-key
+ install-nokeys: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files install-sysconf
+ install-nosysconf: $(CONFIGFILES) $(MANPAGES) $(TARGETS) install-files

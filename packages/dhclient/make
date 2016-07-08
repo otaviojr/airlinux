@@ -55,11 +55,14 @@ if [ "x$stage" == "xsystem" ]; then
 
   make distclean
 
-  echo ac_cv_file__dev_random=true ./configure --prefix= --host=$target --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
-  ac_cv_file__dev_random=true ./configure --prefix= --host=$target --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
+  echo ac_cv_file__dev_random=true ./configure --prefix= --host=$target --sysconfdir=/etc/dhcp --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
+  ac_cv_file__dev_random=true ./configure --prefix= --host=$target --sysconfdir=/etc/dhcp --with-randomdev=/dev/random --with-openssl=$destination_dir --with-ecdsa=yes --with-gost=yes --enable-threads  --enable-exportlib
 
   make
   make DESTDIR=$destination_dir install
+
+  cp -Rf $current_dir/config/sbin/* $destination_dir/sbin
+  cp -Rf $current_dir/config/etc/dhcp/* $destination_dir/etc/dhcp
 fi
 
 touch "done-$stage.lock"

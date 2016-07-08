@@ -12,6 +12,15 @@ cd $destination_dir
 mkdir dev
 mkdir boot
 mkdir etc
+mkdir etc/init.d
+mkdir etc/rc0.d
+mkdir etc/rc1.d
+mkdir etc/rc2.d
+mkdir etc/rc3.d
+mkdir etc/rc4.d
+mkdir etc/rc5.d
+mkdir etc/rc6.d
+mkdir etc/rcS.d
 mkdir home
 mkdir root
 mkdir -p home/airlinux

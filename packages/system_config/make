@@ -1,0 +1,17 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+destination_dir=$destination/dist
+
+echo ""
+echo "**********************************"
+echo "Copying config files and finishing"
+echo "**********************************"
+
+mkdir -p $destination_dir/etc/default
+cp -Rf $current_dir/config/etc/default/* $destination_dir/etc/default

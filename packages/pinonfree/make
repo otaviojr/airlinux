@@ -1,0 +1,34 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling Pi-NonFree-Firmware for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+cross_tools="$4"
+
+cd $download_dir
+if [ ! -d "pinonfree" ]; then
+  #git clone -b rpi-4.4.y https://github.com/raspberrypi/linux.git pikernel
+  git clone https://github.com/RPi-Distro/firmware-nonfree.git pinonfree
+fi
+
+cd "$download_dir/pinonfree"
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+mkdir -p $destination_dir/lib/firmware/brcm
+cp ./brcm80211/brcm/brcmfmac43430-sdio.bin $destination_dir/lib/firmware/brcm
+cp ./brcm80211/brcm/brcmfmac43430-sdio.txt $destination_dir/lib/firmware/brcm
+
+touch "done-$stage.lock"
