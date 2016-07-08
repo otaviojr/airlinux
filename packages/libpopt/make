@@ -1,0 +1,65 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libpopt for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/popt-1.16"
+
+cd $download_dir
+if [ ! -d "popt-1.16" ]; then
+  wget http://rpm5.org/files/popt/popt-1.16.tar.gz
+  tar -xf popt-1.16.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export CPPFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="--sysroot=$destination_dir"
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+#export LIBTOOL=$prefix-libtool
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+
+if [ "x$stage" == "xsystem" ]; then
+  make distclean
+
+  echo ../configure --prefix= --host=$target --disable-static
+  ../configure --prefix= --host=$target --disable-static
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"

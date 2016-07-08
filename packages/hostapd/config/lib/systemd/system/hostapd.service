@@ -1,0 +1,11 @@
+[Unit]
+Description=Hostapd IEEE 802.11 AP, IEEE 802.1X/WPA/WPA2/EAP/RADIUS Authenticator
+After=network.target
+ConditionPathExists=!/etc/wpa_supplicant/wpa_supplicant.conf
+
+[Service]
+ExecStart=/bin/hostapd /etc/hostapd/hostapd.conf
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target

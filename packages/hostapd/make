@@ -1,0 +1,73 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling hostapd for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/hostapd-2.5"
+
+cd $download_dir
+if [ ! -d "hostapd-2.5" ]; then
+  wget https://w1.fi/releases/hostapd-2.5.tar.gz
+  tar -xf hostapd-2.5.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+cd hostapd
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+
+export CFLAGS="$cflags --sysroot=$destination_dir $(pkg-config --cflags libnl-3.0)"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+
+if [ "x$stage" == "xsystem" ]; then
+  cp $current_dir/config/config ./.config
+  make
+
+  # Binaries
+  install -t "$destination_dir/bin" hostapd hostapd_cli
+  # Configurations
+  install -d "$destination_dir/share/doc/hostapd"
+  install -m644 -t "$destination_dir/share/doc/hostapd" hostapd.{accept,conf,deny,eap_user,radius_clients,sim_db,vlan,wpa_psk} wired.conf hlr_auc_gw.milenage_db
+  # Man pages
+  install -Dm644 hostapd.8 "$destination_dir/share/man/man8/hostapd.8"
+  install -Dm644 hostapd_cli.1 "$destination_dir/share/man/man1/hostapd_cli.1"
+
+  cp -Rf $current_dir/config/etc/hostapd $destination_dir/etc/
+  cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system
+fi
+
+cd ..
+touch "done-$stage.lock"
