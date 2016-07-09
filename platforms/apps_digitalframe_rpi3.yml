@@ -1,0 +1,17 @@
+packages: [
+{ package: "xorg-util-macros", script: "make" , parameters: ["system"]},
+{ package: "kbproto", script: "make" , parameters: ["system"]},
+{ package: "xtrans", script: "make" , parameters: ["system"]},
+{ package: "libice", script: "make" , parameters: ["system"]},
+{ package: "libSM", script: "make" , parameters: ["system"]},
+{ package: "libXt", script: "make" , parameters: ["system"]},
+{ package: "libXmu", script: "make" , parameters: ["system"]},
+{ package: "libXpm", script: "make" , parameters: ["system"]},
+{ package: "libXaw", script: "make" , parameters: ["system"]},
+{ package: "randrproto", script: "make" , parameters: ["system"]},
+{ package: "renderproto", script: "make" , parameters: ["system"]},
+{ package: "libXrender", script: "make" , parameters: ["system"]},
+{ package: "libXrandr", script: "make" , parameters: ["system"]},
+{ package: "glu", script: "make" , parameters: ["system"]},
+{ package: "ogre", script: "make" , parameters: ["system"]},
+]

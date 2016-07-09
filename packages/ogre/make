@@ -1,0 +1,93 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling ogre for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/ogre"
+
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install mercurial
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
+cd $download_dir
+if [ ! -d "ogre" ]; then
+  hg clone https://bitbucket.org/sinbad/ogre/ ogre
+  hg update v2-0
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/fix.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+qttarget=$(get_qttarget_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+
+export CFLAGS="$cflags --sysroot=$destination_dir"
+export CXXFLAGS="$cflags --sysroot=$destination_dir"
+export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+export CROSS_COMPILE=$cross_tools/dist/bin/$prefix-
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+export SYSROOT=$destination_dir
+
+export PATH=$PATH:$cross_tools/dist/bin
+
+if [ "x$stage" == "xsystem" ]; then
+  export CMAKE_FIND_ROOT_PATH=$destination_dir
+  export CMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER
+  export CMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY
+  export CMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+  export CMAKE_CXX_COMPILER=$prefix-g++
+  export CMAKE_CXX_FLAGS="$cflags --sysroot=$destination_dir"
+  export CMAKE_C_COMPILER=$prefix-gcc
+  export CMAKE_C_FLAGS="$cflags --sysroot=$destination_dir"
+  export CMAKE_LINKER=$prefix-ld
+  export CMAKE_INSTALL_PREFIX=$destination_dir/usr
+  export CMAKE_RANLIB=$prefix-ranlib
+  export CMAKE_STRIP=$prefix-strip
+  export CMAKE_AR=$prefix-ar
+  export CMAKE_OBJCOPY=$prefix-objcopy
+  export CMAKE_OBJDUMP=$prefix-objdump
+  export CMAKE_NM=$prefix-nm
+  export OPENGLES2_gl_LIBRARY=$destination_dir/lib
+  export OPENGLES2_INCLUDE_DIR=$destination_dir/include
+  export CMAKE_PREFIX_PATH=$destination_dir
+
+  cmake -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_FIND_ROOT_PATH=$destination_dir -DCMAKE_INSTALL_PREFIX=$destination_dir/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 ..
+  make
+  make install
+fi
+
+cd ..
+touch "done-$stage.lock"

@@ -1,0 +1,11 @@
+--- ./Makefile.in	2016-07-08 18:01:11.863344872 -0300
++++ ./Makefile.in	2016-07-08 18:01:29.501500854 -0300
+@@ -362,7 +362,7 @@
+
+ aclocaldir = $(datadir)/aclocal
+ aclocal_DATA = xtrans.m4
+-pkgconfigdir = $(datadir)/pkgconfig
++pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = xtrans.pc
+ MAINTAINERCLEANFILES = ChangeLog INSTALL
+ EXTRA_DIST = ${aclocal_DATA}

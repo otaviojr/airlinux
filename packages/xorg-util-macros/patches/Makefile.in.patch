@@ -1,0 +1,10 @@
+--- ./Makefile.in	2016-07-08 16:59:51.273959711 -0300
++++ ./Makefile.in	2016-07-08 17:00:37.611266649 -0300
+@@ -167,7 +167,7 @@
+ aclocaldir = $(datadir)/aclocal
+ aclocal_DATA = xorg-macros.m4
+ dist_pkgdata_DATA = INSTALL
+-pkgconfigdir = $(datadir)/pkgconfig
++pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = xorg-macros.pc
+ all: all-am

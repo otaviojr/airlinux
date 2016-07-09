@@ -1,0 +1,10 @@
+--- ./Components/HLMS/include/OgreHlmsShaderCommon.h	2016-07-08 22:01:01.103989263 -0300
++++ ./Components/HLMS/include/OgreHlmsShaderCommon.h	2016-07-08 22:01:16.707568591 -0300
+@@ -28,6 +28,7 @@
+
+ #pragma once
+
++#include <stddef.h>
+
+ #include "Ogre.h"
+ #include "OgreHlmsPrerequisites.h"
