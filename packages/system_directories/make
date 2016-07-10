@@ -37,18 +37,22 @@ mkdir ./dev/shm
 mkdir sys
 mkdir proc
 ln -sv /proc/self/mounts ./etc/mtab
+
 mkdir run
-mkdir ./run/lock
-mkdir tmp
+#mkdir ./run/lock
+#touch ./run/utmp
+#touch ./run/btmp
+#touch ./run/wtmp
+#touch ./run/lastlog
+
 mkdir var
-mkdir ./var/run
-touch ./var/run/utmp
-touch ./var/run/btmp
-touch ./var/run/wtmp
-touch ./var/run/lastlog
-mkdir ./var/lock
+ln -s /run ./var/run
+
+ln -s /run/lock ./var/lock
 mkdir ./var/tmp
 mkdir ./var/opt
 mkdir ./var/cache
 mkdir ./var/db
 mkdir ./var/local
+
+mkdir tmp

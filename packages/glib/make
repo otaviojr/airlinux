@@ -78,8 +78,8 @@ if [ "x$stage" == "xsystem" ]; then
   export ac_cv_func_posix_getpwuid_r=yes
   export ac_cv_func_posix_getgrgid_r=yes
 
-  echo "../configure --prefix=/ --host=$target --target=$target --disable-libelf"
-  ../configure --prefix=/ --host=$target --target=$target --disable-libelf
+  echo "../configure --prefix=/ --host=$target --target=$target --disable-libelf --with-threads=posix"
+  ../configure --prefix=/ --host=$target --target=$target --disable-libelf --with-threads=posix
   make LIBTOOL=$prefix-libtool
   make DESTDIR=$destination_dir install
 fi

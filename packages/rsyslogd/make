@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling syslog-ng for $arch at $destination - stage: $stage"
+echo "Cross-Compiling rsyslogd for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/syslog-ng-3.7.3"
+package_dir="$download_dir/rsyslog-8.19.0"
 
 cd $download_dir
-if [ ! -d "syslog-ng-3.7.3" ]; then
-  wget https://github.com/balabit/syslog-ng/releases/download/syslog-ng-3.7.3/syslog-ng-3.7.3.tar.gz
-  tar -xf syslog-ng-3.7.3.tar.gz
+if [ ! -d "rsyslog-8.19.0" ]; then
+  wget "http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.19.0.tar.gz"
+  tar -xf rsyslog-8.19.0.tar.gz
 fi
 
 cd $package_dir
@@ -27,12 +27,6 @@ if [ -f "done-$stage.lock" ]; then
   echo "Already done. Skiping..."
   exit 0
 fi
-
-patch -p1 -N -i $current_dir/patches/syslog-ng.service.patch
-aclocal
-autoconf
-touch NEWS README AUTHORS ChangeLog
-automake --add-missing
 
 if [ -d "build" ]; then
   rm -rf "build"
@@ -62,17 +56,20 @@ export SYSROOT=$destination_dir
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 
+export LIBGCRYPT_CONFIG="$destination_dir/bin/libgcrypt-config"
+
 if [ "x$stage" == "xsystem" ]; then
-  echo ../configure --prefix= --host=$target --sysconfdir=/etc/syslog-ng  --with-ivykis=system --enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --disable-spoof-source --disable-python --disable-amqp --disable-mongodb --enable-mixed-linking --with-sysroot=$destination_dir
-  ../configure --prefix= --host=$target --sysconfdir=/etc/syslog-ng  --with-ivykis=system --enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --disable-spoof-source --disable-python --disable-amqp --disable-mongodb --enable-mixed-linking --with-sysroot=$destination_dir
+  echo ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ../configure --prefix= --host=$target --enable-mysql --enable-pgsql --enable-mail --enable-imfile --enable-snmp --enable-gnutls --enable-inet --enable-imjournal --enable-omjournal --enable-relp --enable-impstats --with-systemdsystemunitdir=/lib/systemd/system
+  ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ../configure --prefix= --host=$target  --disable-mysql --disable-pgsql --disable-mail --disable-imfile --disable-snmp --enable-inet --enable-imjournal --enable-omjournal --disable-relp --enable-impstats --with-systemdsystemunitdir=/lib/systemd/system
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 
-  mkdir -p $destination_dir/etc/default
-  cp -Rf $current_dir/config/etc/syslog-ng $destination_dir/etc/
+  cp -Rf $current_dir/config/etc/rsyslogd.conf $destination_dir/etc/
   mkdir -p $destination_dir/etc/logrotate.d
   cp -Rf $current_dir/config/etc/logrotate.d/* $destination_dir/etc/logrotate.d
-  cp -Rf $current_dir/config/etc/default/* $destination_dir/etc/default
+
+  rm $destination_dir/etc/systemd/system/syslog.service
+  ln -s $destination_dir/lib/systemd/system/rsyslog.service $destination_dir/etc/systemd/system/syslog.service
 fi
 
 cd ..

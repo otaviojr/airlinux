@@ -15,3 +15,5 @@ echo "**********************************"
 
 mkdir -p $destination_dir/etc/default
 cp -Rf $current_dir/config/etc/default/* $destination_dir/etc/default
+mkdir -p $destination_dir/etc/pam.d
+cp -Rf $current_dir/config/etc/pam.d/* $destination_dir/etc/pam.d

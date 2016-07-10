@@ -1,0 +1,59 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling libfastjson for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/libfastjson-0.99.2"
+
+cd $download_dir
+if [ ! -d "libfastjson-0.99.2" ]; then
+  wget https://github.com/rsyslog/libfastjson/archive/v0.99.2.tar.gz
+  tar -xf v0.99.2.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib -DHAVE_REALLOC"
+export LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
+export CC=$prefix-gcc
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+#export LIBTOOL=$prefix-libtool
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+
+autoreconf -fvi
+
+if [ "x$stage" == "xsystem" ]; then
+  make distclean
+
+  echo ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --prefix= --host=$target
+  ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --prefix= --host=$target
+  make
+  make DESTDIR=$destination_dir install
+fi
+
+touch "done-$stage.lock"

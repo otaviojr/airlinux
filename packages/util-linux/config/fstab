@@ -2,3 +2,6 @@ proc            /proc           proc    defaults               0   0
 /dev/mmcblk0p1  /boot           vfat    defaults,rw,noatime,nodiratime,errors=remount-ro  0   2
 /dev/mmcblk0p2  /               ext4    defaults,rw,noatime,nodiratime,errors=remount-ro  0   1
 tmpfs           /tmp            tmpfs   nodev,nosuid,size=50M  0   0
+tmpfs           /run            tmpfs   nodev,nosuid,size=5]=[0M 0   0
+devpts          /dev/pts        devpts  defaults       0     0
+shm             /dev/shm        tmpfs   nodev,nosuid   0     0

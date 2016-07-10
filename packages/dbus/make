@@ -58,8 +58,8 @@ if [ "x$stage" == "xsystem" ]; then
 
   #export GLIB_CFLAGS="-I$destination_dir/include/glib-2.0"
 
-  echo ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
-  ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-sysroot=$destination_dir
+  echo ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-systemdsystemunitdir=/lib/system/systemd --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-systemd --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
+  ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-systemdsystemunitdir=/lib/system/systemd --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-systemd --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
   make
   make DESTDIR=$destination_dir install
 fi

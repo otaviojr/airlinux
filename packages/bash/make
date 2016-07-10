@@ -54,6 +54,10 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target
   make
   make DESTDIR=$destination_dir install
+
+  cp $current_dir/config/etc/profile $destination_dir/etc
+  cp $current_dir/config/etc/profile $destination_dir/root/.bashrc
+  mkdir -p $destination_dir/etc/profile.d
 fi
 
 cd ..

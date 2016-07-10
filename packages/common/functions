@@ -12,6 +12,17 @@ function get_macro_target_for_arch() {
 	echo "$target"
 }
 
+function get_generic_target_for_arch() {
+  arch=$1
+  if [ "x$arch" == "xrpi" ]; then
+    target="arm-unknown-linux-gnueabihf"
+  elif [ "x$arch" == "xrpi3" ]; then
+    #target="aarch64-linux-gnu"
+    target="arm-unknown-linux-gnueabihf"
+  fi
+	echo "$target"
+}
+
 function get_qttarget_for_arch() {
   arch=$1
   if [ "x$arch" == "xrpi" ]; then
