@@ -1,0 +1,11 @@
+--- ./dist/Makefile.in	2016-07-12 01:45:18.925824058 -0300
++++ ./dist/Makefile.in	2016-07-12 01:45:30.566101196 -0300
+@@ -17,7 +17,7 @@
+ bindir=	@bindir@
+ includedir=@includedir@
+ libdir=	@libdir@
+-docdir=	$(prefix)/docs
++docdir=	$(prefix)/share/doc/db
+
+ dmode=	755
+ emode=	555

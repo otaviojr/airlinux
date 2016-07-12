@@ -73,7 +73,8 @@ if [ "x$stage" == "xsystem" ]; then
   export CMAKE_C_COMPILER=$prefix-gcc
   export CMAKE_C_FLAGS="$cflags --sysroot=$destination_dir"
   export CMAKE_LINKER=$prefix-ld
-  export CMAKE_INSTALL_PREFIX=$destination_dir/usr
+  export CMAKE_C_FLAGS="$cflags --sysroot=$destination_dir"
+  export CMAKE_INSTALL_PREFIX=$destination_dir
   export CMAKE_RANLIB=$prefix-ranlib
   export CMAKE_STRIP=$prefix-strip
   export CMAKE_AR=$prefix-ar

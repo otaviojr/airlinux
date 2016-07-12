@@ -64,7 +64,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
-
+  
   cp $current_dir/config/etc/logrotate.conf $destination_dir/etc/
   cp -Rf $current_dir/config/etc/logrotate.d $destination_dir/etc/
   cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system

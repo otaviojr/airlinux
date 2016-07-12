@@ -1,0 +1,30 @@
+--- ./Makefile.gnu	2016-07-11 14:08:43.065566916 -0300
++++ ./Makefile.gnu	2016-07-11 14:09:07.665168065 -0300
+@@ -5,8 +5,8 @@
+
+ # General configuration variables:
+ DESTDIR ?= /
+-INCDIR ?= $(DESTDIR)/usr/include
+-INSTALLDIR ?= $(DESTDIR)/usr/lib
++INCDIR ?= $(DESTDIR)/include
++INSTALLDIR ?= $(DESTDIR)/lib
+
+ # Converts cr/lf to just lf
+ DOS2UNIX = dos2unix
+@@ -15,6 +15,7 @@
+
+ MODULES = $(SRCS:.c=.o)
+ MODULES := $(MODULES:.cpp=.o)
++MODULES := $(MODULES:.S=.o)
+ CFLAGS ?= -O3 -fPIC -fexceptions -fvisibility=hidden
+ # OpenJPEG
+ CFLAGS += -DOPJ_STATIC
+@@ -60,6 +61,9 @@
+ .c.o:
+ 	$(CC) $(CFLAGS) -c $< -o $@
+
++.S.o:
++	$(CC) $(ASFLAGS) -c $< -o $@
++
+ .cpp.o:
+ 	$(CXX) $(CXXFLAGS) -c $< -o $@

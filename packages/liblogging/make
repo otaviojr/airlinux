@@ -48,13 +48,14 @@ export AR=$prefix-ar
 export AS=$prefix-as
 export LD=$prefix-ld
 export RANLIB=$prefix-ranlib
-#export LIBTOOL=$prefix-libtool
 export CROSS_COMPILE=$prefix-
 export PATH=$PATH:$cross_tools/dist/bin
 
 export SYSROOT=$destination_dir
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+
+export LIBSYSTEMD_JOURNAL_LIBS="-lsystemd"
 
 autoreconf -fvi
 

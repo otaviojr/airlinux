@@ -1,0 +1,71 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling freeimage for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_dir="$download_dir/FreeImage"
+
+cd $download_dir
+if [ ! -d "FreeImage" ]; then
+  wget http://downloads.sourceforge.net/freeimage/FreeImage3170.zip
+  unzip FreeImage3170.zip
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+distro=$(get_distro_name)
+
+if [ "x$distro" == "xubuntu" ]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install dos2unix
+else
+  echo "Non debian platform not supported"
+  exit 1
+fi
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -Wno-narrowing"
+export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include -Wno-narrowing"
+export LDFLAGS="--sysroot=$destination_dir"
+export CC=$prefix-gcc
+export CXX=$prefix-g++
+export AR=$prefix-ar
+export AS=$prefix-as
+export LD=$prefix-ld
+export RANLIB=$prefix-ranlib
+#export LIBTOOL=$prefix-libtool
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
+
+find ./Source/LibWebP -type f -exec dos2unix {} \;
+
+patch -p1 -N -i $current_dir/patches/Makefile.patch
+patch -p1 -Nu -l -i $current_dir/patches/code.patch
+
+#TODO: Only apply this patch for arm neon platforms
+patch -p1 -Nu -l -i $current_dir/patches/arm-neon.patch
+
+if [ "x$stage" == "xsystem" ]; then
+  make -f Makefile.gnu clean
+  make -f Makefile.gnu DESTDIR=$destination_dir
+  sudo make DESTDIR=$destination_dir -f Makefile.gnu install
+fi
+
+touch "done-$stage.lock"

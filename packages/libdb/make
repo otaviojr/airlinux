@@ -28,6 +28,8 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
+patch -p1 -N -i $current_dir/patches/Makefile.in.patch
+
 cd build_unix
 
 target=$(get_target_for_arch $arch)
@@ -40,7 +42,6 @@ distro=$(get_distro_name)
 export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib"
 export CXXFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include/ -L$destination_dir/lib"
 export LDFLAGS="$ldflags --sysroot=$destination_dir -L$destination_dir/lib"
-
 
 if [ "x$stage" == "xsystem" ]; then
   export PATH=$PATH:$cross_tools/dist/bin
