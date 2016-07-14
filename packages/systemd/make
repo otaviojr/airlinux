@@ -69,7 +69,7 @@ if [ "x$stage" == "xsystem" ]; then
   make
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 
-  ln -sfv $destination_dir/lib/systemd/systemd $destination_dir/sbin/init
+  ln -sfv /lib/systemd/systemd $destination_dir/sbin/init
   cp -Rf $current_dir/config/etc/machine-id $destination_dir/etc/
 fi
 

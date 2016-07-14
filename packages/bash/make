@@ -56,6 +56,7 @@ if [ "x$stage" == "xsystem" ]; then
   make DESTDIR=$destination_dir install
 
   cp $current_dir/config/etc/profile $destination_dir/etc
+  cp $current_dir/config/etc/bash.bashrc $destination_dir/etc
   cp $current_dir/config/etc/profile $destination_dir/root/.bashrc
   mkdir -p $destination_dir/etc/profile.d
 fi

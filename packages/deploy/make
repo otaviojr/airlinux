@@ -32,6 +32,7 @@ if [ -d "$destination/deploy/system.img" ]; then
 fi
 
 sudo dd if=/dev/zero of=$destination/deploy/system.img bs=512 count=$size
+sudo losetup -d /dev/loop1
 sudo losetup /dev/loop1 $destination/deploy/system.img
 sudo sfdisk /dev/loop1 < $current_dir/config/partitions/$arch.layout
 sudo losetup -d /dev/loop1

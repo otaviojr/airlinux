@@ -1,6 +1,20 @@
 --- ./qtbase/mkspecs/devices/linux-rpi3-g++/qmake.conf	2016-06-18 16:48:42.439628119 -0300
 +++ ./qtbase/mkspecs/devices/linux-rpi3-g++/qmake.conf	2016-06-18 16:48:56.556061214 -0300
-@@ -28,10 +28,10 @@
+@@ -5,13 +5,8 @@
+ # I consider it a bug that this is required, but our EGL config.test _requires_ it
+ QMAKE_LFLAGS           += -Wl,-rpath-link,$$[QT_SYSROOT]/opt/vc/lib
+
+-VC_LIBRARY_PATH         = /opt/vc/lib
+-VC_INCLUDE_PATH         = =/opt/vc/include
+-
+ # terrible, they do not appear to resolve "=" in rpath!
+-VC_LINK_LINE            = -L=$${VC_LIBRARY_PATH} -Wl,-rpath-link,$$[QT_SYSROOT]$${VC_LIBRARY_PATH}
+
+-QMAKE_LIBDIR_OPENGL_ES2 = =$${VC_LIBRARY_PATH}
+ QMAKE_LIBDIR_EGL        = $$QMAKE_LIBDIR_OPENGL_ES2
+ QMAKE_LIBDIR_OPENVG     = $$QMAKE_LIBDIR_OPENGL_ES2
+
+@@ -28,13 +23,13 @@
  QMAKE_LIBS_EGL          = $${VC_LINK_LINE} -lEGL -lGLESv2
 
  # We deliberately override the existing Qt CFLAGS as they might be problematic
@@ -12,7 +26,12 @@
 +DISTRO_OPTS            += softfp-float
  DISTRO_OPTS            += deb-multi-arch
 
- EGLFS_DEVICE_INTEGRATION= eglfs_brcm
+-EGLFS_DEVICE_INTEGRATION= eglfs_brcm
++EGLFS_DEVICE_INTEGRATION= eglfs_kms
+
+ include(../common/linux_arm_device_post.conf)
+
+
  --- ./qtwayland/src/compositor/extensions/extensions.pri	2016-06-26 16:41:32.007223420 -0300
  +++ ./qtwayland/src/compositor/extensions/extensions.pri	2016-06-26 16:42:09.025432073 -0300
  @@ -1,4 +1,5 @@

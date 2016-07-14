@@ -74,7 +74,6 @@ if [ "x$stage" == "xsystem" ]; then
   export CMAKE_C_FLAGS="$cflags --sysroot=$destination_dir"
   export CMAKE_LINKER=$prefix-ld
   export CMAKE_C_FLAGS="$cflags --sysroot=$destination_dir"
-  export CMAKE_INSTALL_PREFIX=$destination_dir
   export CMAKE_RANLIB=$prefix-ranlib
   export CMAKE_STRIP=$prefix-strip
   export CMAKE_AR=$prefix-ar
@@ -83,11 +82,10 @@ if [ "x$stage" == "xsystem" ]; then
   export CMAKE_NM=$prefix-nm
   export OPENGLES2_gl_LIBRARY=$destination_dir/lib
   export OPENGLES2_INCLUDE_DIR=$destination_dir/include
-  export CMAKE_PREFIX_PATH=$destination_dir
 
-  cmake -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_FIND_ROOT_PATH=$destination_dir -DCMAKE_INSTALL_PREFIX=$destination_dir/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 ..
+  cmake -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_FIND_ROOT_PATH=$destination_dir -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 ..
   make
-  make install
+  make DESTDIR=$destination_dir install
 fi
 
 cd ..

@@ -31,10 +31,10 @@ macro_target=$(get_macro_target_for_arch $arch)
 target=$(get_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 
-if [ "x$macro_target" == "xarm" ]; then
-  config="bcm2709_defconfig"
+if [ "x$arch" == "xrpi3" ]; then
+  config="multi_v7_defconfig"
 else
-  echo "Unsupported macro target"
+  echo "Unsupported architecture"
 fi
 
 if [ "x$stage" == "xheaders" ]; then

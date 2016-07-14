@@ -64,12 +64,12 @@ if [ "x$stage" == "xsystem" ]; then
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 
-  cp -Rf $current_dir/config/etc/rsyslogd.conf $destination_dir/etc/
+  cp -Rf $current_dir/config/etc/rsyslog.conf $destination_dir/etc/
   mkdir -p $destination_dir/etc/logrotate.d
   cp -Rf $current_dir/config/etc/logrotate.d/* $destination_dir/etc/logrotate.d
 
   rm $destination_dir/etc/systemd/system/syslog.service
-  ln -s $destination_dir/lib/systemd/system/rsyslog.service $destination_dir/etc/systemd/system/syslog.service
+  ln -s /lib/systemd/system/rsyslog.service $destination_dir/etc/systemd/system/syslog.service
 fi
 
 cd ..

@@ -29,6 +29,8 @@ if [ -f "done-$stage.lock" ]; then
 fi
 
 patch -p1 -N -i $current_dir/patches/rpi3_qmake.conf.patch
+#GCC 6.1 error when using -isystem - removes it
+patch -p1 -N -i $current_dir/patches/gcc-base.conf.patch
 
 if [ -d "build" ]; then
   rm -rf "build"
@@ -52,8 +54,8 @@ export PATH=$PATH:/tmp/wayland/bin
 export QT_WAYLAND_SCANNER=/tmp/wayland/bin/wayland-scanner
 
 if [ "x$stage" == "xsystem" ]; then
-  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -no-mtdev -I$destination_dir/include/drm -v"
-  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -no-xcb -no-mtdev -I$destination_dir/include/drm -v
+  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -no-xcb -v"
+  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -no-xcb
   make
   make INSTALL_ROOT=/tmp/qt install
 
