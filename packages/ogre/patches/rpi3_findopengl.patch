@@ -1,0 +1,154 @@
+--- ./CMake/Packages/FindOpenGLES3.cmake	2016-07-15 16:09:43.164613225 -0300
++++ ./CMake/Packages/FindOpenGLES3.cmake	2016-07-15 16:11:55.221349970 -0300
+@@ -79,6 +79,7 @@
+   ELSE(APPLE)
+     getenv_path(AMD_SDK_ROOT)
+     getenv_path(MALI_SDK_ROOT)
++    getenv_path(ENV_RPI_OPENGL_DIR)
+
+     FIND_PATH(OPENGLES2_INCLUDE_DIR GLES3/gl3.h
+       ${ENV_AMD_SDK_ROOT}/include
+@@ -86,7 +87,7 @@
+       /opt/Imagination/PowerVR/GraphicsSDK/SDK_3.1/Builds/Include
+       /usr/openwin/share/include
+       /opt/graphics/OpenGL/include /usr/X11R6/include
+-      /usr/include
++      /usr/include ${ENV_RPI_OPENGL_DIR}/include
+     )
+
+     FIND_LIBRARY(OPENGLES3_gl_LIBRARY
+@@ -97,7 +98,7 @@
+             /opt/graphics/OpenGL/lib
+             /usr/openwin/lib
+             /usr/shlib /usr/X11R6/lib
+-            /usr/lib
++            /usr/lib ${ENV_RPI_OPENGL_DIR}/lib
+     )
+
+     FIND_PATH(EGL_INCLUDE_DIR EGL/egl.h
+@@ -106,7 +107,7 @@
+       /opt/Imagination/PowerVR/GraphicsSDK/SDK_3.1/Builds/Include
+       /usr/openwin/share/include
+       /opt/graphics/OpenGL/include /usr/X11R6/include
+-      /usr/include
++      /usr/include ${ENV_RPI_OPENGL_DIR}/include
+     )
+
+     FIND_LIBRARY(EGL_egl_LIBRARY
+@@ -117,7 +118,7 @@
+             /opt/graphics/OpenGL/lib
+             /usr/openwin/lib
+             /usr/shlib /usr/X11R6/lib
+-            /usr/lib
++            /usr/lib ${ENV_RPI_OPENGL_DIR}/lib
+     )
+
+     # On Unix OpenGL most certainly always requires X11.
+@@ -125,16 +126,16 @@
+     # think this is always true.
+     # It's not true on OSX.
+
+-    IF (OPENGLES3_gl_LIBRARY)
+-      IF(NOT X11_FOUND)
+-        INCLUDE(FindX11)
+-      ENDIF(NOT X11_FOUND)
+-      IF (X11_FOUND)
+-        IF (NOT APPLE)
+-          SET (OPENGLES3_LIBRARIES ${X11_LIBRARIES})
+-        ENDIF (NOT APPLE)
+-      ENDIF (X11_FOUND)
+-    ENDIF (OPENGLES3_gl_LIBRARY)
++    #IF (OPENGLES3_gl_LIBRARY)
++    #  IF(NOT X11_FOUND)
++    #    INCLUDE(FindX11)
++    #  ENDIF(NOT X11_FOUND)
++    #  IF (X11_FOUND)
++    #    IF (NOT APPLE)
++    #      SET (OPENGLES3_LIBRARIES ${X11_LIBRARIES})
++    #    ENDIF (NOT APPLE)
++    #  ENDIF (X11_FOUND)
++    #ENDIF (OPENGLES3_gl_LIBRARY)
+
+   ENDIF(APPLE)
+ ENDIF (WIN32)
+
+--- ./CMake/Packages/FindOpenGLES2.cmake	2016-07-15 15:59:20.094846455 -0300
++++ ./CMake/Packages/FindOpenGLES2.cmake	2016-07-15 16:05:17.051012629 -0300
+@@ -83,14 +83,14 @@
+   ELSE(APPLE)
+     getenv_path(AMD_SDK_ROOT)
+     getenv_path(MALI_SDK_ROOT)
+-
++    getenv_path(ENV_RPI_OPENGL_DIR)
+     FIND_PATH(OPENGLES2_INCLUDE_DIR GLES2/gl2.h
+       ${ENV_AMD_SDK_ROOT}/include
+       ${ENV_MALI_SDK_ROOT}/include
+       /opt/Imagination/PowerVR/GraphicsSDK/SDK_3.1/Builds/Include
+       /usr/openwin/share/include
+       /opt/graphics/OpenGL/include /usr/X11R6/include
+-      /usr/include
++      /usr/include ${ENV_RPI_OPENGL_DIR}/include
+     )
+
+     FIND_LIBRARY(OPENGLES2_gl_LIBRARY
+@@ -101,7 +101,7 @@
+             /opt/graphics/OpenGL/lib
+             /usr/openwin/lib
+             /usr/shlib /usr/X11R6/lib
+-            /usr/lib
++            /usr/lib ${ENV_RPI_OPENGL_DIR}/lib
+     )
+
+     FIND_PATH(EGL_INCLUDE_DIR EGL/egl.h
+@@ -110,7 +110,7 @@
+       /opt/Imagination/PowerVR/GraphicsSDK/SDK_3.1/Builds/Include
+       /usr/openwin/share/include
+       /opt/graphics/OpenGL/include /usr/X11R6/include
+-      /usr/include
++      /usr/include ${ENV_RPI_OPENGL_DIR}/include
+     )
+
+     FIND_LIBRARY(EGL_egl_LIBRARY
+@@ -121,7 +121,7 @@
+             /opt/graphics/OpenGL/lib
+             /usr/openwin/lib
+             /usr/shlib /usr/X11R6/lib
+-            /usr/lib
++            /usr/lib ${ENV_RPI_OPENGL_DIR}/lib
+     )
+
+     # On Unix OpenGL most certainly always requires X11.
+@@ -129,23 +129,22 @@
+     # think this is always true.
+     # It's not true on OSX.
+
+-    IF (OPENGLES2_gl_LIBRARY)
+-      IF(NOT X11_FOUND)
+-        INCLUDE(FindX11)
+-      ENDIF(NOT X11_FOUND)
+-      IF (X11_FOUND)
+-        IF (NOT APPLE)
+-          SET (OPENGLES2_LIBRARIES ${X11_LIBRARIES})
+-        ENDIF (NOT APPLE)
+-      ENDIF (X11_FOUND)
+-    ENDIF (OPENGLES2_gl_LIBRARY)
++   # IF (OPENGLES2_gl_LIBRARY)
++   #   IF(NOT X11_FOUND)
++   #     INCLUDE(FindX11)
++   #   ENDIF(NOT X11_FOUND)
++   #   IF (X11_FOUND)
++   #     IF (NOT APPLE)
++   #       SET (OPENGLES2_LIBRARIES ${X11_LIBRARIES})
++   #     ENDIF (NOT APPLE)
++   #   ENDIF (X11_FOUND)
++   # ENDIF (OPENGLES2_gl_LIBRARY)
+
+   ENDIF(APPLE)
+ ENDIF (WIN32)
+
+ SET( OPENGLES2_FOUND "YES" )
+ IF(OPENGLES2_gl_LIBRARY)
+-
+     SET( OPENGLES2_LIBRARIES ${OPENGLES2_gl_LIBRARY} ${OPENGLES2_LIBRARIES})
+     IF(EGL_egl_LIBRARY)
+         SET( EGL_LIBRARIES ${EGL_egl_LIBRARY} ${EGL_LIBRARIES})

@@ -64,15 +64,23 @@ export CROSS_COMPILE=$prefix-
 export PATH=$PATH:$cross_tools/dist/bin:/tmp/wayland/bin
 
 if [ "x$stage" == "xsystem" ]; then
-  echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
-  ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
-  make
-  make DESTDIR=$destination_dir install
+  if ["x$arch" == "xrpi3" ]; then
+    echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
+    ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
+    make
+    make DESTDIR=$destination_dir install
+  else
+    echo "Unsupported architecture"
+  fi
 elif [ "x$stage" == "xsystem-wayland" ]; then
-  echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
-  ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
-  make LIBTOOL=$prefix-libtool
-  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  if ["x$arch" == "xrpi3" ]; then
+    echo ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
+    ../configure --prefix=/ --host=$target --with-gallium-drivers=vc4 --with-egl-platforms='wayland drm' --without-dri-drivers --enable-gbm --disable-gles1 --enable-gles2
+    make LIBTOOL=$prefix-libtool
+    make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  else
+    echo "Unsupported architecture"
+  fi
 fi
 
 cd ..

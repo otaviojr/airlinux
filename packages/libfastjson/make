@@ -45,7 +45,7 @@ export RANLIB=$prefix-ranlib
 export CROSS_COMPILE=$prefix-
 export PATH=$PATH:$cross_tools/dist/bin
 
-autoreconf -fvi
+./autogen.sh
 
 if [ "x$stage" == "xsystem" ]; then
   make distclean

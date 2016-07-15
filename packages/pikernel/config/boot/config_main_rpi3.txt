@@ -1,0 +1,3 @@
+avoid_warnings=2
+kernel=vmlinux
+device_tree=dtbs/bcm2836-rpi-2-b.dtb

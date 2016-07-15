@@ -28,7 +28,12 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
-patch -p1 -N -i $current_dir/patches/rpi3_qmake.conf.patch
+if [ "x$stage" == "xsystem" ]; then
+  patch -p1 -N -i $current_dir/patches/rpi3_qmake.conf.patch
+elif [ "x$stage" == "xsystem-nonfree" ]; then
+  patch -p1 -N -i $current_dir/patches/rpi3_nonfree_qmake.conf.patch
+fi
+
 #GCC 6.1 error when using -isystem - removes it
 patch -p1 -N -i $current_dir/patches/gcc-base.conf.patch
 
@@ -53,9 +58,9 @@ export SYSROOT=$destination_dir
 export PATH=$PATH:/tmp/wayland/bin
 export QT_WAYLAND_SCANNER=/tmp/wayland/bin/wayland-scanner
 
-if [ "x$stage" == "xsystem" ]; then
-  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -no-xcb -v"
-  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -no-xcb
+if [ "x$stage" == "xsystem" ] || [ "x$stage" == "xsystem-nonfree" ]; then
+  echo "../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -force-pkg-config -no-xcb -L$destination_dir/opt/vc/lib -v"
+  ../configure -prefix / -extprefix $destination_dir -hostprefix $destination_dir -testsdir /share/qt/tests -examplesdir /share/qt/examples -sysconfdir /etc/qt -datadir /share/qt -archdatadir /share/qt -opengl es2 -device $qttarget-g++ -device-option CROSS_COMPILE=$cross_tools/dist/bin/$prefix- -sysroot $destination_dir -opensource -confirm-license -optimized-qmake -reduce-exports -release -make libs -dbus-linked -journald -force-pkg-config -no-xcb -L$destination_dir/opt/vc/lib
   make
   make INSTALL_ROOT=/tmp/qt install
 

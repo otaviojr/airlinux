@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling libxkbcommon for $arch at $destination - stage: $stage"
+echo "Cross-Compiling mesa-samples for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/libxkbcommon-0.6.1"
+package_dir="$download_dir/mesa-demos-8.3.0"
 
 cd $download_dir
-if [ ! -d "libxkbcommon-0.6.1" ]; then
-  wget http://xkbcommon.org/download/libxkbcommon-0.6.1.tar.xz
-  tar -xf libxkbcommon-0.6.1.tar.xz
+if [ ! -d "mesa-demos-8.3.0" ]; then
+  wget ftp://ftp.freedesktop.org/pub/mesa/demos/8.3.0/mesa-demos-8.3.0.tar.gz
+  tar -xf mesa-demos-8.3.0.tar.gz
 fi
 
 cd $package_dir
@@ -40,24 +40,23 @@ prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
-export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
-export LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib"
+export CFLAGS="$cflags --sysroot=$destination_dir"
 
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
 export SYSROOT=$destination_dir
 
+export CROSS_COMPILE=$prefix-
+export PATH=$PATH:$cross_tools/dist/bin
 export CC=$prefix-gcc
 export AR=$prefix-ar
 export AS=$prefix-as
 export LD=$prefix-ld
 export RANLIB=$prefix-ranlib
-export CROSS_COMPILE=$prefix-
-export PATH=$PATH:$cross_tools/dist/bin
 
 if [ "x$stage" == "xsystem" ]; then
   echo ../configure --prefix= --host=$target
-  ../configure --prefix= --host=$target --with-xkb-config-root=/share/X11/xkb
+  ../configure --prefix= --host=$target
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 fi

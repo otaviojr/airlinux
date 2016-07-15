@@ -19,6 +19,7 @@ cd $download_dir
 if [ ! -d "pikernel" ]; then
   #git clone -b rpi-4.4.y https://github.com/raspberrypi/linux.git pikernel
   git clone -b rpi-4.7.y https://github.com/raspberrypi/linux.git pikernel
+  #git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git pikernel
 fi
 
 cd "$download_dir/pikernel"
@@ -27,12 +28,20 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
+#Only for linux-next repository - not working yet
+#git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+#git fetch linux-next
+#git checkout v4.7-rc7
+#patch -p1 -N -i $current_dir/patches/rpi3.patch
+
+patch -p1 -N -i $current_dir/patches/bcm2709_defconfig.patch
+
 macro_target=$(get_macro_target_for_arch $arch)
 target=$(get_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 
 if [ "x$arch" == "xrpi3" ]; then
-  config="multi_v7_defconfig"
+  config="bcm2709_defconfig"
 else
   echo "Unsupported architecture"
 fi
@@ -56,13 +65,21 @@ elif [ "x$stage" == "xfull" ]; then
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- modules_install"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$destination_dir modules_install
 
-  sudo mkdir -p $destination_dir/boot/overlays/
+  #only to linux-next
+  #mkdir -p $destination_dir/boot/dtbs
+  #cp ./arch/arm/boot/dts/*.dtb $destination_dir/boot/dtbs
+  #cp ./arch/arm/boot/compressed/vmlinux $destination_dir/boot/
 
-  sudo cp arch/arm/boot/dts/*.dtb $destination_dir/boot/
-  sudo cp arch/arm/boot/dts/overlays/*.dtb* $destination_dir/boot/overlays/
-  sudo cp arch/arm/boot/dts/overlays/README $destination_dir/boot/overlays/
-  sudo scripts/mkknlimg arch/arm/boot/zImage $destination_dir/boot/$KERNEL.img
-  sudo cp -Rf $current_dir/config/boot/* $destination_dir/boot/
+  #only to raspberrypi/linux image
+  mkdir -p $destination_dir/boot/overlays/
+  cp ./arch/arm/boot/dts/overlays/*.dtb* $destination_dir/boot/overlays
+  cp ./arch/arm/boot/dts/*.dtb $destination_dir/boot
+  sudo ./scripts/mkknlimg arch/arm/boot/zImage $destination_dir/boot/$KERNEL.img
+
+  #to anyone of them
+  cp -Rf $current_dir/config/boot/* $destination_dir/boot/
+  rm $destination_dir/boot/config.txt
+  mv $destination_dir/boot/config_rpi3.txt $destination_dir/boot/config.txt
 fi
 
 touch "done-$stage.lock"

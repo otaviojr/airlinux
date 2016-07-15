@@ -1,0 +1,23 @@
+--- ./qtbase/mkspecs/devices/linux-rpi3-g++/qmake.conf	2016-06-18 16:48:42.439628119 -0300
++++ ./qtbase/mkspecs/devices/linux-rpi3-g++/qmake.conf	2016-06-18 16:48:56.556061214 -0300
+@@ -28,10 +28,10 @@
+ QMAKE_LIBS_EGL          = $${VC_LINK_LINE} -lEGL -lGLESv2
+
+ # We deliberately override the existing Qt CFLAGS as they might be problematic
+-QMAKE_CFLAGS            = -march=armv8-a+crc -mtune=cortex-a53 -mfpu=crypto-neon-fp-armv8 -pipe -Os -mthumb
++QMAKE_CFLAGS            = -march=armv8-a -mtune=cortex-a53 -mfpu=crypto-neon-fp-armv8 -pipe -Os -mthumb
+ QMAKE_CXXFLAGS          = $$QMAKE_CFLAGS -std=c++1z
+
+-DISTRO_OPTS            += hard-float
++DISTRO_OPTS            += softfp-float
+ DISTRO_OPTS            += deb-multi-arch
+
+ EGLFS_DEVICE_INTEGRATION= eglfs_brcm
+ --- ./qtwayland/src/compositor/extensions/extensions.pri	2016-06-26 16:41:32.007223420 -0300
+ +++ ./qtwayland/src/compositor/extensions/extensions.pri	2016-06-26 16:42:09.025432073 -0300
+ @@ -1,4 +1,5 @@
+  CONFIG += wayland-scanner
+ +CONFIG += generated_privates
+  WAYLANDSERVERSOURCES += \
+      ../extensions/surface-extension.xml \
+      ../extensions/touch-extension.xml \

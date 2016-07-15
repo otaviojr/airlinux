@@ -1,0 +1,32 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling Pi-NonFree-VideoCore for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+cross_tools="$4"
+
+cd $download_dir
+if [ ! -d "pinonfree-vc" ]; then
+  git clone https://github.com/raspberrypi/firmware.git pinonfree-vc
+fi
+
+cd "$download_dir/pinonfree-vc"
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+mkdir -p $destination_dir/opt/vc
+cp -Rf ./opt/vc/* $destination_dir/opt/vc
+
+touch "done-$stage.lock"

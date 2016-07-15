@@ -76,8 +76,8 @@ elif [ "x$stage" == "xstage2" ]; then
   RANLIB=$prefix-ranlib
   export CFLAGS="-I$destination_dir/include --sysroot=$destination_dir -isysroot=$destination_dir $cflags"
 
-  echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0"
-  ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0
+  echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0"
+  ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0
 
   make
   make DESTDIR=$destination_dir install
@@ -92,8 +92,8 @@ elif [ "x$stage" == "xsystem-libstdc++" ]; then
   export LDFLAGS="--sysroot=$destination_dir -isysroot=$destination_dir $cflags $ldflags"
   export PATH=$PATH:$cross_tools/dist/bin
 
-  echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0"
-  ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=$destination_dir/include/c++/6.1.0
+  echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0"
+  ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0
 
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
