@@ -54,7 +54,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   rm $destination_dir/lib/libbz2.so*
   cp -av libbz2.so* $destination_dir/lib
-  ln -s $destination_dir/lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
+  ln -s /lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
   #cp -v bzip2-shared $destination_dir/bin/bzip2
   #rm -v $destination_dir/bin/{bunzip2,bzcat}
   #ln -sv bzip2 $destination_dir/bin/bunzip2

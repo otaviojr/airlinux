@@ -8,18 +8,18 @@ cross_tools="$4"
 #Include our common functions
 . ./packages/common/functions
 
-echo "Cross-Compiling coreutils for $arch at $destination - stage: $stage"
+echo "Cross-Compiling curl for $arch at $destination - stage: $stage"
 
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
-package_dir="$download_dir/coreutils-8.25"
+package_dir="$download_dir/ntp-4.2.8p8"
 
 cd $download_dir
-if [ ! -d "coreutils-8.25" ]; then
-  wget https://ftp.gnu.org/gnu/coreutils/coreutils-8.25.tar.xz
-  tar -xf coreutils-8.25.tar.xz
+if [ ! -d "ntp-4.2.8p8" ]; then
+  wget http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-4.2.8p8.tar.gz
+  tar -xf ntp-4.2.8p8.tar.gz
 fi
 
 cd $package_dir
@@ -28,21 +28,19 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
-if [ -d "build" ]; then
-  rm -rf "build"
+if [ -d "b" ]; then
+  rm -rf "b"
 fi
-mkdir "build"
-cd "$package_dir/build"
+mkdir "b"
+cd "$package_dir/b"
 
 target=$(get_target_for_arch $arch)
 macro_target=$(get_macro_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
 cflags=$(get_cflags_for_arch $arch)
-ldflags=$(get_cflags_for_arch $arch)
 distro=$(get_distro_name)
 
 export CFLAGS="$cflags --sysroot=$destination_dir"
-export LDFLAGS="$ldflags --sysroot=$destination_dir"
 
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export PKG_CONFIG_SYSROOT_DIR=$destination_dir
@@ -57,11 +55,8 @@ export LD=$prefix-ld
 export RANLIB=$prefix-ranlib
 
 if [ "x$stage" == "xsystem" ]; then
-  echo ac_cv_func_getgroups_works=yes ac_cv_func_chown_works=yes ../configure --prefix= --host=$target
-  ac_cv_func_getgroups_works=yes ac_cv_func_chown_works=yes ../configure --prefix= --host=$target
-
-  patch -p1 -N -i $current_dir/patches/Makefile.patch
-
+  echo ../configure --prefix= --host=$target --with-yielding_select=yes
+  ../configure --prefix= --host=$target --with-yielding_select=yes
   make
   make DESTDIR=$destination_dir install
 fi

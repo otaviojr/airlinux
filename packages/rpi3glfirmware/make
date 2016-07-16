@@ -19,7 +19,6 @@ package_dir="$download_dir/raspberrypi_firmware"
 cd $download_dir
 if [ ! -d "raspberrypi_firmware" ]; then
   git clone https://github.com/raspberrypi/firmware.git raspberrypi_firmware
-  wget https://mesa.freedesktop.org/archive/11.2.2/mesa-11.2.2.tar.xz
 fi
 
 if [ "x$stage" == "xsystem" ]; then

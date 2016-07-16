@@ -61,7 +61,7 @@ export CROSS_COMPILE=$cross_tools/dist/bin/$prefix-
 export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
 export SYSROOT=$destination_dir
 
-if [ "x$arch" == "xrpi3" ] && [ "$stage" == "xsystem-nonfree" ]; then
+if [ "x$arch" == "xrpi3" ] && [ "x$stage" == "xsystem-nonfree" ]; then
   export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$destination_dir/opt/vc/lib/pkgconfig
 fi
 
@@ -81,7 +81,12 @@ if [ "x$stage" == "xsystem" ] || [ "x$stage" == "xsystem-nonfree" ]; then
   export CMAKE_OBJDUMP=$prefix-objdump
   export CMAKE_NM=$prefix-nm
 
-  cmake -DENV_RPI_OPENGL_DIR=$destination_dir/opt/vc -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 ..
+  if [ "x$arch" == "xrpi3" ] && [ "x$stage" == "xsystem-nonfree" ]; then
+    define_custom="-DENV_RPI_OPENGL_DIR=$destination_dir/opt/vc"
+  fi
+
+  echo "cmake $define_custom -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 .."
+  cmake $define_custom -DPKG_CONFIG_EXECUTABLE=/usr/bin/pkg-config -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_NM=$prefix-nm -DCMAKE_OBJDUMP=$prefix-objdump -DCMAKE_OBJCOPY=$prefix-objcopy -DCMAKE_AR=$prefix-ar -DCMAKE_RANLIB=$prefix-ranlib -DCMAKE_STRIP=$prefix-strip -DCMAKE_LINKER=$prefix-ld -DCMAKE_CXX_COMPILER=$prefix-g++ -DCMAKE_C_COMPILER=$prefix-gcc -DOGRE_DEPENDENCIES_DIR=$destination_dir -DOGRE_BUILD_RENDERSYSTEM_GLES2=1 -DOGRE_BUILD_SAMPLES=1 -DOGRE_CONFIG_THREADS=0 -DOGRE_INSTALL_DOCS=0 -DOGRE_BUILD_PLUGIN_CG=0 -DOGRE_INSTALL_MEDIA=1 -DOGRE_BUILD_TOOLS=0 -DOGRE_BUILD_TESTS=0 -DOGRE_INSTALL_SAMPLES=1 ..
   make
   make DESTDIR=$destination_dir install
 fi

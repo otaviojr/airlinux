@@ -63,8 +63,8 @@ if [ "x$stage" == "xsystem" ]; then
   export RANLIB=$prefix-ranlib
   export STRIP=$prefix-strip
 
-  echo cc_cv_CFLAGS__flto=no ../configure --prefix= --enable-compat-libs --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions
-  cc_cv_CFLAGS__flto=no ../configure --prefix= --enable-compat-libs --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions
+  echo cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions
+  cc_cv_CFLAGS__flto=no ../configure --prefix= --with-rootlibdir=/lib --with-rootprefix= --enable-split-usr --host=$target --enable-kdbus --with-bashcompletiondir=/share/bash-completion/completions
 
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
