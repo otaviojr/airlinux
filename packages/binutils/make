@@ -11,6 +11,7 @@ echo "Cross-Compiling binutils for $arch at $destination"
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/binutils"
 cflags=$(get_cflags_for_arch $arch)
 
 cd $download_dir

@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/bash"
 package_dir="$download_dir/bash-4.3"
 
 cd $download_dir
@@ -54,11 +55,19 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 
+  #System
   cp $current_dir/config/etc/profile $destination_dir/etc
   cp $current_dir/config/etc/bash.bashrc $destination_dir/etc
   cp $current_dir/config/etc/profile $destination_dir/root/.bashrc
   mkdir -p $destination_dir/etc/profile.d
+
+  #Package
+  cp $current_dir/config/etc/profile $package_install_dir/etc
+  cp $current_dir/config/etc/bash.bashrc $package_install_dir/etc
+  cp $current_dir/config/etc/profile $package_install_dir/root/.bashrc
+  mkdir -p $package_install_dir/etc/profile.d
 fi
 
 cd ..

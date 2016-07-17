@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/hostapd"
 package_dir="$download_dir/hostapd-2.5"
 
 cd $download_dir
@@ -56,6 +57,7 @@ if [ "x$stage" == "xsystem" ]; then
   cp $current_dir/config/config ./.config
   make
 
+  # System
   # Binaries
   install -t "$destination_dir/bin" hostapd hostapd_cli
   # Configurations
@@ -67,6 +69,19 @@ if [ "x$stage" == "xsystem" ]; then
 
   cp -Rf $current_dir/config/etc/hostapd $destination_dir/etc/
   cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system
+
+  #Package
+  # Binaries
+  install -t "$package_install_dir/bin" hostapd hostapd_cli
+  # Configurations
+  install -d "$package_install_dir/share/doc/hostapd"
+  install -m644 -t "$package_install_dir/share/doc/hostapd" hostapd.{accept,conf,deny,eap_user,radius_clients,sim_db,vlan,wpa_psk} wired.conf hlr_auc_gw.milenage_db
+  # Man pages
+  install -Dm644 hostapd.8 "$package_install_dir/share/man/man8/hostapd.8"
+  install -Dm644 hostapd_cli.1 "$package_install_dir/share/man/man1/hostapd_cli.1"
+
+  cp -Rf $current_dir/config/etc/hostapd $package_install_dir/etc/
+  cp -Rf $current_dir/config/lib/systemd/system/* $package_install_dir/lib/systemd/system  
 fi
 
 cd ..

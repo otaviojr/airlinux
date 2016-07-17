@@ -12,6 +12,8 @@ echo "Cross-Compiling gcc for $arch at $destination - stage: $stage"
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/gcc"
+package1_install_dir="$destination/deploy/packages/libstdc++"
 
 cd $download_dir
 if [ ! -d "gcc-6.1.0" ]; then

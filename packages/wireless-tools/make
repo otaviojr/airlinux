@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/wireless-tools"
 package_dir="$download_dir/wireless_tools.29"
 
 cd $download_dir
@@ -53,6 +54,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   make
   make PREFIX=/ INSTALL_LIB=$destination_dir/lib INSTALL_INC=$destination_dir/include INSTALL_DIR=$destination_dir/bin INSTALL_MAN=$destination_dir/share/man install
+  make PREFIX=/ INSTALL_LIB=$package_install_dir/lib INSTALL_INC=$package_install_dir/include INSTALL_DIR=$package_install_dir/bin INSTALL_MAN=$package_install_dir/share/man install
 fi
 
 touch "done-$stage.lock"

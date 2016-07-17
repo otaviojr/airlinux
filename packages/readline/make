@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/readline"
 package_dir="$download_dir/readline-6.3"
 
 cd $download_dir
@@ -57,6 +58,7 @@ if [ "x$stage" == "xsystem" ]; then
   bash_cv_wcwidth_broken=no ../configure --prefix= --host=$target -disable-static
   make SHLIB_LIBS=-lncurses
   make SHLIB_LIBS=-lncurses DESTDIR=$destination_dir install
+  make SHLIB_LIBS=-lncurses DESTDIR=$package_install_dir install
 fi
 
 cd ..

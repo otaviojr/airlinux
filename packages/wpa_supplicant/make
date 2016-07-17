@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/wpa-supplicant"
 package_dir="$download_dir/wpa_supplicant-2.5"
 
 cd $download_dir
@@ -56,6 +57,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   make BINDIR=/sbin LIBDIR=/lib
 
+  #System
   install -v -m755 wpa_{cli,passphrase,supplicant} $destination_dir/sbin/ &&
   install -v -m644 doc/docbook/wpa_supplicant.conf.5 $destination_dir/share/man/man5/ &&
   install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 $destination_dir/share/man/man8/
@@ -67,6 +69,19 @@ if [ "x$stage" == "xsystem" ]; then
   install -v -m644 doc/docbook/wpa_gui.8 $destination_dir/share/man/man8/ &&
   install -v -m644 wpa_gui-qt4/wpa_gui.desktop $destination_dir/share/applications/ &&
   install -v -m644 wpa_gui-qt4/icons/wpa_gui.svg $destination_dir/share/pixmaps/
+
+  #Package
+  install -v -m755 wpa_{cli,passphrase,supplicant} $package_install_dir/sbin/ &&
+  install -v -m644 doc/docbook/wpa_supplicant.conf.5 $package_install_dir/share/man/man5/ &&
+  install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 $package_install_dir/share/man/man8/
+
+  install -v -m644 dbus/fi.{epitest.hostap.WPASupplicant,w1.wpa_supplicant1}.service $package_install_dir/share/dbus-1/system-services/ &&
+  install -v -m644 dbus/dbus-wpa_supplicant.conf $package_install_dir/etc/dbus-1/system.d/wpa_supplicant.conf
+
+  install -v -m755 wpa_gui-qt4/wpa_gui $package_install_dir/bin/ &&
+  install -v -m644 doc/docbook/wpa_gui.8 $package_install_dir/share/man/man8/ &&
+  install -v -m644 wpa_gui-qt4/wpa_gui.desktop $package_install_dir/share/applications/ &&
+  install -v -m644 wpa_gui-qt4/icons/wpa_gui.svg $package_install_dir/share/pixmaps/  
 fi
 
 touch "done-$stage.lock"

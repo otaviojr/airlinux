@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/bzip2"
 package_dir="$download_dir/bzip2-1.0.6"
 
 cd $download_dir
@@ -49,16 +50,20 @@ if [ "x$stage" == "xsystem" ]; then
 
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
+
   make clean
   make -f Makefile-libbz2_so
 
+  #System
   rm $destination_dir/lib/libbz2.so*
   cp -av libbz2.so* $destination_dir/lib
   ln -s /lib/libbz2.so.1.0.6 $destination_dir/lib/libbz2.so
-  #cp -v bzip2-shared $destination_dir/bin/bzip2
-  #rm -v $destination_dir/bin/{bunzip2,bzcat}
-  #ln -sv bzip2 $destination_dir/bin/bunzip2
-  #ln -sv bzip2 $destination_dir/bin/bzcat
+
+  #Package
+  rm $package_install_dir/lib/libbz2.so*
+  cp -av libbz2.so* $package_install_dir/lib
+  ln -s /lib/libbz2.so.1.0.6 $package_install_dir/lib/libbz2.so
 fi
 
 touch "done-$stage.lock"

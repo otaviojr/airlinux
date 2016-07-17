@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/wayland"
 package_dir="$download_dir/wayland"
 
 cd $download_dir
@@ -80,6 +81,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix=/ --host=$target --disable-documentation --with-host-scanner=yes
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

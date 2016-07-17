@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/libcap"
 package_dir="$download_dir/libcap-2.25"
 
 cd $download_dir
@@ -43,6 +44,7 @@ if [ "x$stage" == "xsystem" ]; then
   make distclean
   make CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib" LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib" prefix=/ lib=/lib CC=$prefix-gcc LD=$prefix-ld RANLIB=$prefix-ranlib SYSTEM_HEADERS=$destination_dir/include
   make CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib" LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib" RAISE_SETFCAP=no CC=$prefix-gcc LD=$prefix-ld RANLIB=$prefix-ranlib SYSTEM_HEADERS=$destination_dir/include prefix=/ lib=/lib DESTDIR=$destination_dir install
+  make CFLAGS="$cflags --sysroot=$destination_dir -L$destination_dir/lib" LDFLAGS="--sysroot=$destination_dir -L$destination_dir/lib" RAISE_SETFCAP=no CC=$prefix-gcc LD=$prefix-ld RANLIB=$prefix-ranlib SYSTEM_HEADERS=$destination_dir/include prefix=/ lib=/lib DESTDIR=$package_install_dir install
 fi
 
 touch "done-$stage.lock"

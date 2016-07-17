@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/ncurses"
 package_dir="$download_dir/ncurses-6.0"
 
 cd $download_dir
@@ -58,6 +59,7 @@ if [ "x$stage" == "xall" ]; then
   ../configure --prefix= --host=$target --with-shared --with-termlib --enable-term-drive
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

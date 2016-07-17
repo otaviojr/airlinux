@@ -1,7 +1,19 @@
 #!/bin/bash
 
+##
+# System
+##
+
 #Make dirs
 mkdir $destination_dir/etc/ld.so.conf.d
-
 #Copy conif files
 cp -Rf $current_dir/config/$arch/etc $destination_dir
+
+##
+# Package
+##
+
+#Make dirs
+mkdir $package_install_dir/etc/ld.so.conf.d
+#Copy conif files
+cp -Rf $current_dir/config/$arch/etc $package_install_dir

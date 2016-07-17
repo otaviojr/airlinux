@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/glibc"
 package_dir="$download_dir/glibc-2.23"
 
 cd $download_dir
@@ -71,10 +72,13 @@ elif [ "x$stage" == "xsystem" ]; then
   make
   make DESTDIR=$destination_dir install-headers
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install-headers
+  make DESTDIR=$package_install_dir install
 elif [ "x$stage" == "xconfigs" ]; then
   export current_dir
   export download_dir
   export destination_dir
+  export package_install_dir
   export arch
   $current_dir/config/$arch/make
 fi

@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/iptables"
 package_dir="$download_dir/iptables-1.6.0"
 
 cd $download_dir
@@ -71,6 +72,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install  
 fi
 
 touch "done-$stage.lock"

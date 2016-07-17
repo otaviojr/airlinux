@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/qt"
 package_dir="$download_dir/qt-everywhere-opensource-src-5.7.0"
 
 cd $download_dir
@@ -64,10 +65,17 @@ if [ "x$stage" == "xsystem" ] || [ "x$stage" == "xsystem-nonfree" ]; then
   make
   make INSTALL_ROOT=/tmp/qt install
 
+  #System
   sudo cp -Rf /tmp/qt/$destination_dir/bin/* $destination_dir/bin
   sudo cp -Rf /tmp/qt/$destination_dir/include/* $destination_dir/include
   sudo cp -Rf /tmp/qt/$destination_dir/lib/* $destination_dir/lib
   sudo cp -Rf /tmp/qt/share/qt $destination_dir/share
+
+  #Package
+  sudo cp -Rf /tmp/qt/$destination_dir/bin/* $package_install_dir/bin
+  sudo cp -Rf /tmp/qt/$destination_dir/include/* $package_install_dir/include
+  sudo cp -Rf /tmp/qt/$destination_dir/lib/* $package_install_dir/lib
+  sudo cp -Rf /tmp/qt/share/qt $package_install_dir/share
 fi
 
 cd ..

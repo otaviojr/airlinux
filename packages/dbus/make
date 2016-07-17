@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/dbus"
 package_dir="$download_dir/dbus-1.11.2"
 
 cd $download_dir
@@ -62,6 +63,7 @@ if [ "x$stage" == "xsystem" ]; then
   ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-systemdsystemunitdir=/lib/system/systemd --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

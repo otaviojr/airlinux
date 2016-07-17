@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/avahi"
 package_dir="$download_dir/avahi-0.6.32"
 
 cd $download_dir
@@ -61,6 +62,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target --with-distro=none --disable-static --disable-mono --disable-monodoc --disable-python --disable-qt3 --disable-qt4 --disable-gtk3 --disable-gtk --enable-core-docs --enable-core-docs --with-systemdsystemunitdir=/lib/systemd/system
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install
 fi
 
 cd ..

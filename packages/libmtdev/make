@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/mtdev"
 package_dir="$download_dir/mtdev-1.1.5"
 
 cd $download_dir
@@ -60,6 +61,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install  
 fi
 
 cd ..

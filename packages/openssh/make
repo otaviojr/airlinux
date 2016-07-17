@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/openssh"
 package_dir="$download_dir/openssh-7.2p2"
 
 cd $download_dir
@@ -64,7 +65,9 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target --target=$target --disable-strip --with-pam --disable-etc-default-login --sysconfdir=/etc/ssh --without-hardening --without-stackprotect
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install
 
+  #System
   cp -Rf $current_dir/config/etc/ssh/* $destination_dir/etc/ssh
   cp -Rf $current_dir/config/etc/pam.d/* $destination_dir/etc/pam.d
 
@@ -76,6 +79,19 @@ if [ "x$stage" == "xsystem" ]; then
 
   cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system/
   ln -s /lib/systemd/system/ssh.service $destination_dir/etc/systemd/system/sshd.service
+
+  #Package
+  cp -Rf $current_dir/config/etc/ssh/* $package_install_dir/etc/ssh
+  cp -Rf $current_dir/config/etc/pam.d/* $package_install_dir/etc/pam.d
+
+  #use host key gen to generate host key
+  ssh-keygen -q -t rsa -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_rsa_key
+  ssh-keygen -q -t dsa -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_dsa_key
+  ssh-keygen -q -t ecdsa -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_ecdsa_key
+  ssh-keygen -q -t ed25519 -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_ed25519_key
+
+  cp -Rf $current_dir/config/lib/systemd/system/* $package_install_dir/lib/systemd/system/
+  ln -s /lib/systemd/system/ssh.service $package_install_dir/etc/systemd/system/sshd.service
 fi
 
 cd ..

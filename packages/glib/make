@@ -15,6 +15,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
 package_dir="$download_dir/glib-2.49.1"
+package_install_dir="$destination/deploy/packages/glib"
 
 cd $download_dir
 if [ ! -d "glib-2.49.1" ]; then
@@ -82,6 +83,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix=/ --host=$target --target=$target --disable-libelf --with-threads=posix
   make LIBTOOL=$prefix-libtool
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

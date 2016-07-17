@@ -13,10 +13,10 @@ distro=$(get_distro_name)
 current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 echo "Creating deploy image"
-sudo mkdir $destination/deploy
-sudo mkdir $destination/deploy/mount1
-sudo mkdir $destination/deploy/mount2
-sudo mkdir $destination/deploy/mount3
+mkdir $destination/deploy
+mkdir $destination/deploy/mount1
+mkdir $destination/deploy/mount2
+mkdir $destination/deploy/mount3
 
 if [ "x$distro" == "xubuntu" ]; then
   sudo DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install kpartx

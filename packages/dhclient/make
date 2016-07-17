@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/dhclient"
 package_dir="$download_dir/dhcp-4.3.4"
 
 cd $download_dir
@@ -60,9 +61,15 @@ if [ "x$stage" == "xsystem" ]; then
 
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 
+  #System
   cp -Rf $current_dir/config/sbin/* $destination_dir/sbin
   cp -Rf $current_dir/config/etc/dhcp/* $destination_dir/etc/dhcp
+
+  #Package
+  cp -Rf $current_dir/config/sbin/* $package_install_dir/sbin
+  cp -Rf $current_dir/config/etc/dhcp/* $package_install_dir/etc/dhcp
 fi
 
 touch "done-$stage.lock"

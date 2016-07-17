@@ -13,6 +13,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/pikernel"
 cross_tools="$4"
 
 cd $download_dir
@@ -60,10 +61,16 @@ elif [ "x$stage" == "xfull" ]; then
   make ARCH=$macro_target CROSS_COMPILE=$prefix- $config
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/ headers_install"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$destination_dir/ headers_install
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_HDR_PATH=$package_install_dir/ headers_install
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- zImage modules dtbs
   echo "make ARCH=$macro_target CROSS_COMPILE=$prefix- modules_install"
   make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$destination_dir modules_install
+  make ARCH=$macro_target CROSS_COMPILE=$prefix- INSTALL_MOD_PATH=$package_install_dir modules_install
+
+  ##
+  # System
+  ##
 
   #only to linux-next
   #mkdir -p $destination_dir/boot/dtbs
@@ -80,6 +87,27 @@ elif [ "x$stage" == "xfull" ]; then
   cp -Rf $current_dir/config/boot/* $destination_dir/boot/
   rm $destination_dir/boot/config.txt
   mv $destination_dir/boot/config_rpi3.txt $destination_dir/boot/config.txt
+
+
+  ##
+  # Package
+  ##
+
+  #only to linux-next
+  #mkdir -p $destination_dir/boot/dtbs
+  #cp ./arch/arm/boot/dts/*.dtb $destination_dir/boot/dtbs
+  #cp ./arch/arm/boot/compressed/vmlinux $destination_dir/boot/
+
+  #only to raspberrypi/linux image
+  mkdir -p $package_install_dir/boot/overlays/
+  cp ./arch/arm/boot/dts/overlays/*.dtb* $package_install_dir/boot/overlays
+  cp ./arch/arm/boot/dts/*.dtb $package_install_dir/boot
+  sudo ./scripts/mkknlimg arch/arm/boot/zImage $package_install_dir/boot/$KERNEL.img
+
+  #to anyone of them
+  cp -Rf $current_dir/config/boot/* $package_install_dir/boot/
+  rm $package_install_dir/boot/config.txt
+  mv $package_install_dir/boot/config_rpi3.txt $package_install_dir/boot/config.txt
 fi
 
 touch "done-$stage.lock"

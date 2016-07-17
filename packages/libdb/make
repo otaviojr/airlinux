@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/libdb"
 package_dir="$download_dir/db-6.2.23"
 
 cd $download_dir
@@ -60,6 +61,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install  
 fi
 
 cd ..

@@ -14,6 +14,7 @@ current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/wget"
 package_dir="$download_dir/wget-1.18"
 
 cd $download_dir
@@ -59,6 +60,7 @@ if [ "x$stage" == "xsystem" ]; then
   ../configure --prefix= --host=$target --with-ssl=openssl
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..
