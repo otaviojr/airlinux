@@ -8,6 +8,9 @@ function get_macro_target_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #target="arm64"
     target="arm"
+  elif [ "x$arch" == "xx86" ]; then
+    #target="arm64"
+    target=""
   fi
 	echo "$target"
 }
@@ -19,6 +22,8 @@ function get_generic_target_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #target="aarch64-linux-gnu"
     target="arm-unknown-linux-gnueabihf"
+  elif [ "x$arch" == "xx86" ]; then
+    target=""
   fi
 	echo "$target"
 }
@@ -29,6 +34,8 @@ function get_qttarget_for_arch() {
     target="linux-rasp-pi"
   elif [ "x$arch" == "xrpi3" ]; then
     target="linux-rpi3"
+  elif [ "x$arch" == "xx86" ]; then
+    target=""
   fi
 	echo "$target"
 }
@@ -40,6 +47,8 @@ function get_target_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #target="aarch64-linux-gnu"
     target="arm-airlinux-linux-gnueabihf"
+  elif [ "x$arch" == "xx86" ]; then
+    target=""
   fi
 	echo "$target"
 }
@@ -51,6 +60,8 @@ function get_prefix_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #prefix="aarch64-linux-gnu"
     prefix="arm-airlinux-linux-gnueabihf"
+  elif [ "x$arch" == "xx86" ]; then
+    prefix=""
   fi
 	echo "$prefix"
 }
@@ -62,6 +73,8 @@ function get_cflags_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #flags="-O2 -U_FORTIFY_SOURCE -fno-stack-protector -ftree-vectorize"
     flags="-O2 -pipe -march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=softfp"
+  elif [ "x$arch" == "xx86" ]; then
+    flags="-O2 -pipe"
   fi
 	echo "$flags"
 }
@@ -73,6 +86,8 @@ function get_ldflags_for_arch() {
   elif [ "x$arch" == "xrpi3" ]; then
     #flags="-O2 -U_FORTIFY_SOURCE -fno-stack-protector -ftree-vectorize"
     flags="-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=softfp"
+  elif [ "x$arch" == "xx86" ]; then
+    flags=""
   fi
 	echo "$flags"
 }

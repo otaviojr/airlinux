@@ -1,0 +1,92 @@
+--- ./src/libsystemd/sd-path/sd-path.c	2016-07-22 20:15:14.523662044 -0300
++++ ./src/libsystemd/sd-path/sd-path.c	2016-07-22 20:20:16.153286585 -0300
+@@ -225,15 +225,15 @@
+                 return from_environment("TMPDIR", "/var/tmp", ret);
+
+         case SD_PATH_SYSTEM_BINARIES:
+-                *ret = "/usr/bin";
++                *ret = "/bin";
+                 return 0;
+
+         case SD_PATH_SYSTEM_INCLUDE:
+-                *ret = "/usr/include";
++                *ret = "/include";
+                 return 0;
+
+         case SD_PATH_SYSTEM_LIBRARY_PRIVATE:
+-                *ret = "/usr/lib";
++                *ret = "/lib";
+                 return 0;
+
+         case SD_PATH_SYSTEM_LIBRARY_ARCH:
+@@ -241,15 +241,15 @@
+                 return 0;
+
+         case SD_PATH_SYSTEM_SHARED:
+-                *ret = "/usr/share";
++                *ret = "/share";
+                 return 0;
+
+         case SD_PATH_SYSTEM_CONFIGURATION_FACTORY:
+-                *ret = "/usr/share/factory/etc";
++                *ret = "/share/factory/etc";
+                 return 0;
+
+         case SD_PATH_SYSTEM_STATE_FACTORY:
+-                *ret = "/usr/share/factory/var";
++                *ret = "/share/factory/var";
+                 return 0;
+
+         case SD_PATH_SYSTEM_CONFIGURATION:
+@@ -531,6 +531,10 @@
+                                                false,
+                                                "/usr/local/share",
+                                                "/usr/share",
++#ifdef HAVE_SPLIT_USR
++
++					       "/share",
++#endif
+                                                NULL);
+
+         case SD_PATH_SEARCH_CONFIGURATION_FACTORY:
+@@ -541,6 +545,9 @@
+                                                false,
+                                                "/usr/local/share/factory/etc",
+                                                "/usr/share/factory/etc",
++#ifdef HAVE_SPLIT_USR
++					       "/share/factory/etc",
++#endif
+                                                NULL);
+
+         case SD_PATH_SEARCH_STATE_FACTORY:
+@@ -551,6 +558,9 @@
+                                                false,
+                                                "/usr/local/share/factory/var",
+                                                "/usr/share/factory/var",
++#ifdef HAVE_SPLIT_USR
++					       "/share/factory/var",
++#endif
+                                                NULL);
+
+         case SD_PATH_SEARCH_CONFIGURATION:
+
+--- ./src/tmpfiles/tmpfiles.c	2016-07-22 20:09:24.274540038 -0300
++++ ./src/tmpfiles/tmpfiles.c	2016-07-22 20:13:54.022765039 -0300
+@@ -1873,7 +1873,7 @@
+
+         case CREATE_SYMLINK:
+                 if (!i.argument) {
+-                        i.argument = strappend("/usr/share/factory/", i.path);
++                        i.argument = strappend("/share/factory/", i.path);
+                         if (!i.argument)
+                                 return log_oom();
+                 }
+@@ -1888,7 +1888,7 @@
+
+         case COPY_FILES:
+                 if (!i.argument) {
+-                        i.argument = strappend("/usr/share/factory/", i.path);
++                        i.argument = strappend("/share/factory/", i.path);
+                         if (!i.argument)
+                                 return log_oom();
+                 } else if (!path_is_absolute(i.argument)) {

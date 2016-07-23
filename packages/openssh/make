@@ -79,6 +79,7 @@ if [ "x$stage" == "xsystem" ]; then
 
   cp -Rf $current_dir/config/lib/systemd/system/* $destination_dir/lib/systemd/system/
   ln -s /lib/systemd/system/ssh.service $destination_dir/etc/systemd/system/sshd.service
+  ln -s /lib/systemd/system/ssh.service $destination_dir/etc/systemd/system/multi-user.target.wants/ssh.service
 
   #Package
   cp -Rf $current_dir/config/etc/ssh/* $package_install_dir/etc/ssh
@@ -90,8 +91,11 @@ if [ "x$stage" == "xsystem" ]; then
   ssh-keygen -q -t ecdsa -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_ecdsa_key
   ssh-keygen -q -t ed25519 -Nairlinux -f $package_install_dir/etc/ssh/ssh_host_ed25519_key
 
+  mkdir -p $package_install_dir/etc/systemd/system/multi-user.target.wants
+  mkdir -p $package_install_dir/lib/systemd/system/
   cp -Rf $current_dir/config/lib/systemd/system/* $package_install_dir/lib/systemd/system/
   ln -s /lib/systemd/system/ssh.service $package_install_dir/etc/systemd/system/sshd.service
+  ln -s /lib/systemd/system/ssh.service $package_install_dir/etc/systemd/system/multi-user.target.wants/ssh.service
 fi
 
 cd ..

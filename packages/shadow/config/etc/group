@@ -46,7 +46,7 @@ input:x:106:
 crontab:x:107:
 syslog:x:108:
 netdev:x:109:
-messagebus:x:110:
+dbus:x:110:
 uuidd:x:111:
 ssl-cert:x:112:
 lpadmin:x:113:airlinux

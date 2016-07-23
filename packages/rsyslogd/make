@@ -67,20 +67,24 @@ if [ "x$stage" == "xsystem" ]; then
   make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install
 
   #System
-  cp -Rf $current_dir/config/etc/rsyslog.conf $package_install_dir/etc/
-  mkdir -p $package_install_dir/etc/logrotate.d
-  cp -Rf $current_dir/config/etc/logrotate.d/* $package_install_dir/etc/logrotate.d
+  cp -Rf $current_dir/config/etc/rsyslog.conf $destination_dir/etc/
+  mkdir -p $destination_dir/etc/logrotate.d
+  cp -Rf $current_dir/config/etc/logrotate.d/* $destination_dir/etc/logrotate.d
 
-  rm $package_install_dir/etc/systemd/system/syslog.service
-  ln -s /lib/systemd/system/rsyslog.service $package_install_dir/etc/systemd/system/syslog.service
+  mkdir -p $destination_dir/etc/systemd/system/multi-user.target.wants
+  rm $destination_dir/etc/systemd/system/syslog.service
+  ln -s /lib/systemd/system/rsyslog.service $destination_dir/etc/systemd/system/syslog.service
+  ln -s /lib/systemd/system/rsyslog.service $destination_dir/etc/systemd/system/multi-user.target.wants/rsyslog.service
 
   #Package
   cp -Rf $current_dir/config/etc/rsyslog.conf $package_install_dir/etc/
   mkdir -p $package_install_dir/etc/logrotate.d
   cp -Rf $current_dir/config/etc/logrotate.d/* $package_install_dir/etc/logrotate.d
 
+  mkdir -p $package_install_dir/etc/systemd/system/multi-user.target.wants
   rm $package_install_dir/etc/systemd/system/syslog.service
   ln -s /lib/systemd/system/rsyslog.service $package_install_dir/etc/systemd/system/syslog.service
+  ln -s /lib/systemd/system/rsyslog.service $package_install_dir/etc/systemd/system/multi-user.target.wants/rsyslog.service
 fi
 
 cd ..

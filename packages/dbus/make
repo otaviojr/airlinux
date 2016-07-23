@@ -57,10 +57,22 @@ if [ "x$stage" == "xsystem" ]; then
   export LD=$prefix-ld
   export RANLIB=$prefix-ranlib
 
-  #export GLIB_CFLAGS="-I$destination_dir/include/glib-2.0"
+  echo ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
+  ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
+  make
+  make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
+elif [ "x$stage" == "xsystem-systemd" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
 
-  echo ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-systemdsystemunitdir=/lib/system/systemd --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
-  ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --with-systemdsystemunitdir=/lib/system/systemd --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
+  echo ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
+  ac_cv_have_abstract_sockets=yes ../configure --prefix= --host=$target --target=$target --enable-systemd --with-systemdsystemunitdir=/lib/systemd/system --with-systemduserunitdir=/lib/systemd/user --with-system-pid-file=/run/dbus/pid --with-system-socket=/run/dbus/system_bus_socket --enable-user-session --with-dbus-user=dbus --enable-inotify --with-sysroot=$destination_dir
   make
   make DESTDIR=$destination_dir install
   make DESTDIR=$package_install_dir install

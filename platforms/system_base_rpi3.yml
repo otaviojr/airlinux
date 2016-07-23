@@ -61,6 +61,7 @@ packages: [
 { package: "iptables", script: "make" , parameters: ["system"]},
 { package: "dhclient", script: "make" , parameters: ["system"]},
 { package: "systemd", script: "make" , parameters: ["system"]},
+{ package: "dbus", script: "make" , parameters: ["system-systemd"]},
 { package: "liblogging", script: "make" , parameters: ["system"]},
 { package: "rsyslogd", script: "make" , parameters: ["system"]},
 { package: "logrotate", script: "make" , parameters: ["system"]},

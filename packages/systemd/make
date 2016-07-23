@@ -35,6 +35,8 @@ fi
 
 sudo apt-get install gperf
 
+patch -p1 -N -i $current_dir/patches/directories.patch
+
 if [ -d "build" ]; then
   rm -rf "build"
 fi
@@ -76,6 +78,7 @@ if [ "x$stage" == "xsystem" ]; then
   cp -Rf $current_dir/config/etc/machine-id $destination_dir/etc/
 
   #Package
+  mkdir -p $package_install_dir/sbin
   ln -s /lib/systemd/systemd $package_install_dir/sbin/init
   cp -Rf $current_dir/config/etc/machine-id $package_install_dir/etc/
 fi
