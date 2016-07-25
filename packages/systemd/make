@@ -29,13 +29,14 @@ if [ -f "done-$stage.lock" ]; then
   exit 0
 fi
 
+patch -p1 -N -i $current_dir/patches/directories.patch
+patch -p1 -N -i $current_dir/patches/units.patch
+
 if [ ! -f "configure" ]; then
   ./autogen.sh
 fi
 
 sudo apt-get install gperf
-
-patch -p1 -N -i $current_dir/patches/directories.patch
 
 if [ -d "build" ]; then
   rm -rf "build"

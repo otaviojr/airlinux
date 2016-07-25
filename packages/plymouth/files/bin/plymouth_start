@@ -1,0 +1,2 @@
+#!/bin/bash
+TERM=linux setterm -cursor off > /dev/tty0

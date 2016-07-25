@@ -1,0 +1,88 @@
+--- ./term-utils/agetty.c	2016-07-25 01:44:32.332372596 -0300
++++ ./term-utils/agetty.c	2016-07-25 01:44:44.614490748 -0300
+@@ -138,7 +138,7 @@
+ static int netlink_fd = AGETTY_RELOAD_FDNONE;
+ #endif
+
+-#define AGETTY_PLYMOUTH		"/usr/bin/plymouth"
++#define AGETTY_PLYMOUTH		"/bin/plymouth"
+ #define AGETTY_PLYMOUTH_FDFILE	"/dev/null"
+
+ /*
+@@ -309,7 +309,8 @@
+ static ssize_t append(char *dest, size_t len, const char  *sep, const char *src);
+ static void check_username (const char* nm);
+ static void login_options_to_argv(char *argv[], int *argc, char *str, char *username);
+-static int plymouth_command(const char* arg);
++static pid_t plymouth_command(const char* arg);
++static void plymouth_quit();
+ static void reload_agettys(void);
+
+ /* Fake hostname for ut_host specified on command line. */
+@@ -376,6 +377,8 @@
+ 	if (options.delay)
+ 	    sleep(options.delay);
+
++	plymouth_quit();
++
+ 	debug("calling open_tty\n");
+
+ 	/* Open the tty as standard { input, output, error }. */
+@@ -1173,34 +1176,19 @@
+ 	write_all(fd, "\033[r\033[H\033[J", 9);
+ }
+
++static void plymouth_quit(){
++        plymouth_command("quit");
++        plymouth_command("--wait");
++}
++
+ /* Initialize termios settings. */
+ static void termio_init(struct options *op, struct termios *tp)
+ {
+ 	speed_t ispeed, ospeed;
+ 	struct winsize ws;
+ 	struct termios lock;
+-#ifdef TIOCGLCKTRMIOS
+-	int i =  (plymouth_command("--ping") == 0) ? 30 : 0;
+-
+-	while (i-- > 0) {
+-		/*
+-		 * Even with TTYReset=no it seems with systemd or plymouth
+-		 * the termios flags become changed from under the first
+-		 * agetty on a serial system console as the flags are locked.
+-		 */
+-		memset(&lock, 0, sizeof(struct termios));
+-		if (ioctl(STDIN_FILENO, TIOCGLCKTRMIOS, &lock) < 0)
+-			break;
+-		if (!lock.c_iflag && !lock.c_oflag && !lock.c_cflag && !lock.c_lflag)
+-			break;
+-		debug("termios locked\n");
+-		if (i == 15 && plymouth_command("quit") != 0)
+-			break;
+-		sleep(1);
+-	}
+ 	memset(&lock, 0, sizeof(struct termios));
+ 	ioctl(STDIN_FILENO, TIOCSLCKTRMIOS, &lock);
+-#endif
+
+ 	if (op->flags & F_VCONSOLE) {
+ #if defined(IUTF8) && defined(KDGKBMODE)
+@@ -2599,7 +2587,7 @@
+ /*
+  * For the case plymouth is found on this system
+  */
+-static int plymouth_command(const char* arg)
++static pid_t plymouth_command(const char* arg)
+ {
+ 	static int has_plymouth = 1;
+ 	pid_t pid;
+@@ -2627,7 +2615,7 @@
+ 			has_plymouth = 0;
+ 		return status;
+ 	}
+-	return 1;
++	return pid;
+ }
+
+ static void reload_agettys(void)

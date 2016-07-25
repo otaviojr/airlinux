@@ -1,0 +1,86 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+install_prefix=/
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling plymouth for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/plymouth"
+package_dir="$download_dir/plymouth-0.9.2"
+
+cd $download_dir
+if [ ! -d "plymouth-0.9.2" ]; then
+  wget https://www.freedesktop.org/software/plymouth/releases/plymouth-0.9.2.tar.bz2
+  tar -xf plymouth-0.9.2.tar.bz2
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+patch -p1 -N -i $current_dir/patches/systemd.patch
+
+if [ -d "build" ]; then
+  rm -rf "build"
+fi
+mkdir "build"
+cd "$package_dir/build"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="$ldflags -L$destination_dir/lib --sysroot=$destination_dir -lrt"
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig:$destination_dir/usr/lib/pkgconfig:$destination_dir/opt/vc/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  echo "../configure --prefix=$install_prefix --host=$target --disable-gtk --enable-systemd-integration"
+  ../configure --prefix=$install_prefix --host=$target --disable-gtk --enable-systemd-integration
+
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install
+
+  cp -Rf $current_dir/files/bin/* $destination_dir/$install_prefix/bin
+  chmod 755 $destination_dir/$install_prefix/bin/plymouth_start
+  chmod 755 $destination_dir/$install_prefix/bin/plymouth_stop
+  #Let this work to util-linux agetty
+  rm $destination_dir/lib/systemd/system/multi-user.target.wants/plymouth*
+
+  cp -Rf $current_dir/files/bin/* $package_install_dir/$install_prefix/bin
+  chmod 755 $package_install_dir/$install_prefix/bin/plymouth_start
+  chmod 755 $package_install_dir/$install_prefix/bin/plymouth_stop
+  #Let this work to util-linux agetty
+  rm $package_install_dir/lib/systemd/system/multi-user.target.wants/plymouth*
+fi
+
+cd ..
+touch "done-$stage.lock"

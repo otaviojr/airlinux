@@ -77,7 +77,7 @@ packages: [
 { package: "sudo", script: "make" , parameters: ["system"]},
 { package: "openssh", script: "make" , parameters: ["system"]},
 { package: "wget", script: "make" , parameters: ["system"]},
-{ package: "ntpd", script: "make" , parameters: ["system"]},
+# { package: "ntpd", script: "make" , parameters: ["system"]},
 { package: "pinonfree", script: "make" , parameters: ["system"]},
 { package: "system_config", script: "make" , parameters: ["system"]},
 ]

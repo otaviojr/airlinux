@@ -1,0 +1,64 @@
+--- ./systemd-units/plymouth-halt.service.in	2016-07-24 18:18:04.377075874 -0300
++++ ./systemd-units/plymouth-halt.service.in	2016-07-24 18:18:15.913076536 -0300
+@@ -6,6 +6,7 @@
+ ConditionKernelCommandLine=!plymouth.enable=0
+
+ [Service]
++ExecStartPre=-@PLYMOUTH_CLIENT_DIR@/plymouth_start
+ ExecStart=@PLYMOUTH_DAEMON_DIR@/plymouthd --mode=shutdown --attach-to-session
+ ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth show-splash
+ Type=forking
+
+--- ./systemd-units/plymouth-reboot.service.in	2016-07-24 18:17:39.801153738 -0300
++++ ./systemd-units/plymouth-reboot.service.in	2016-07-24 18:17:54.140522042 -0300
+@@ -6,6 +6,7 @@
+ ConditionKernelCommandLine=!plymouth.enable=0
+
+ [Service]
++ExecStartPre=-@PLYMOUTH_CLIENT_DIR@/plymouth_start
+ ExecStart=@PLYMOUTH_DAEMON_DIR@/plymouthd --mode=shutdown --attach-to-session
+ ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth show-splash
+ Type=forking
+
+--- ./systemd-units/plymouth-kexec.service.in	2016-07-24 18:17:11.745338760 -0300
++++ ./systemd-units/plymouth-kexec.service.in	2016-07-24 18:17:24.113897474 -0300
+@@ -6,6 +6,7 @@
+ ConditionKernelCommandLine=!plymouth.enable=0
+
+ [Service]
++ExecStartPre=-@PLYMOUTH_CLIENT_DIR@/plymouth_start
+ ExecStart=@PLYMOUTH_DAEMON_DIR@/plymouthd --mode=shutdown --attach-to-session
+ ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth show-splash
+ Type=forking
+
+--- ./systemd-units/plymouth-poweroff.service.in	2016-07-24 18:16:37.576941493 -0300
++++ ./systemd-units/plymouth-poweroff.service.in	2016-07-24 18:16:52.058122031 -0300
+@@ -6,6 +6,7 @@
+ ConditionKernelCommandLine=!plymouth.enable=0
+
+ [Service]
++ExecStartPre=-@PLYMOUTH_CLIENT_DIR@/plymouth_start
+ ExecStart=@PLYMOUTH_DAEMON_DIR@/plymouthd --mode=shutdown --attach-to-session
+ ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth show-splash
+ Type=forking
+
+--- ./systemd-units/plymouth-quit.service.in	2016-07-24 17:58:37.728665061 -0300
++++ ./systemd-units/plymouth-quit.service.in	2016-07-24 17:59:12.248328000 -0300
+@@ -4,5 +4,6 @@
+
+ [Service]
+ ExecStart=-@PLYMOUTH_CLIENT_DIR@/plymouth quit
++ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth_stop
+ Type=oneshot
+ TimeoutSec=20
+
+--- ./systemd-units/plymouth-start.service.in	2016-07-24 17:57:40.598642405 -0300
++++ ./systemd-units/plymouth-start.service.in	2016-07-24 17:58:19.170516972 -0300
+@@ -7,6 +7,7 @@
+ ConditionKernelCommandLine=!plymouth.enable=0
+
+ [Service]
++ExecStartPre=-@PLYMOUTH_CLIENT_DIR@/plymouth_start
+ ExecStart=@PLYMOUTH_DAEMON_DIR@/plymouthd --mode=boot --pid-file=@plymouthruntimedir@/pid --attach-to-session
+ ExecStartPost=-@PLYMOUTH_CLIENT_DIR@/plymouth show-splash
+ Type=forking

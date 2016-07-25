@@ -1,0 +1,20 @@
+--- ./units/getty@.service.m4	2016-07-25 04:49:47.799793873 -0300
++++ ./units/getty@.service.m4	2016-07-25 04:50:10.722168500 -0300
+@@ -27,7 +27,7 @@
+
+ [Service]
+ # the VT is cleared by TTYVTDisallocate
+-ExecStart=-/sbin/agetty --noclear %I $TERM
++ExecStart=-/sbin/agetty %I $TERM
+ Type=idle
+ Restart=always
+ RestartSec=0
+@@ -35,7 +35,7 @@
+ TTYPath=/dev/%I
+ TTYReset=yes
+ TTYVHangup=yes
+-TTYVTDisallocate=yes
++TTYVTDisallocate=no
+ KillMode=process
+ IgnoreSIGPIPE=no
+ SendSIGHUP=yes

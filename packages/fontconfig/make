@@ -1,0 +1,70 @@
+#!/bin/bash
+
+stage="$1"
+destination="$2"
+arch="$3"
+cross_tools="$4"
+
+#Include our common functions
+. ./packages/common/functions
+
+echo "Cross-Compiling fontconfig for $arch at $destination - stage: $stage"
+
+current_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+download_dir="$destination/packages"
+destination_dir="$destination/dist"
+package_install_dir="$destination/deploy/packages/fontconfig"
+package_dir="$download_dir/fontconfig-2.12.0"
+
+cd $download_dir
+if [ ! -d "fontconfig-2.12.0" ]; then
+  wget https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.0.tar.gz
+  tar -xf fontconfig-2.12.0.tar.gz
+fi
+
+cd $package_dir
+if [ -f "done-$stage.lock" ]; then
+  echo "Already done. Skiping..."
+  exit 0
+fi
+
+if [ -d "b" ]; then
+  rm -rf "b"
+fi
+mkdir "b"
+cd "$package_dir/b"
+
+target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+distro=$(get_distro_name)
+
+export CFLAGS="$cflags --sysroot=$destination_dir -I$destination_dir/include"
+export LDFLAGS="$ldflags -L$destination_dir/lib --sysroot=$destination_dir -lrt"
+
+export SYSROOT=$destination_dir
+export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig:$destination_dir/usr/lib/pkgconfig:$destination_dir/opt/vc/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+
+if [ "x$stage" == "xsystem" ]; then
+  export CROSS_COMPILE=$prefix-
+  export PATH=$PATH:$cross_tools/dist/bin
+  export CC=$prefix-gcc
+  export AR=$prefix-ar
+  export AS=$prefix-as
+  export LD=$prefix-ld
+  export RANLIB=$prefix-ranlib
+
+  echo "../configure --prefix= --host=$target --disable-docs"
+  ../configure --prefix= --host=$target --disable-docs
+
+  make LIBTOOL=$prefix-libtool
+  make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
+  make LIBTOOL=$prefix-libtool DESTDIR=$package_install_dir install
+fi
+
+cd ..
+touch "done-$stage.lock"
