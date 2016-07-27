@@ -8,6 +8,12 @@ packages: [
 { package: "glibc", script: "make" , parameters: ["configs"]},
 { package: "gcc", script: "make" , parameters: ["system-libstdc++"]},
 { package: "gcc", script: "make" , parameters: ["system-lib"]},
+
+#TODO: split development tools
+{ package: "binutils", script: "make" , parameters: ["system"]},
+{ package: "gcc", script: "make" , parameters: ["system"]},
+#end
+
 { package: "module_init_tools", script: "make" , parameters: ["system"]},
 { package: "procps", script: "make" , parameters: ["system"]},
 { package: "zlib", script: "make" , parameters: ["system"]},

@@ -56,8 +56,8 @@ if [ "x$stage" == "xstage1" ]; then
 
 elif [ "x$stage" == "xsystem" ]; then
   export PATH=$PATH:$cross_tools/dist/bin
-  echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir"
-  ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target --with-sysroot=$destination_dir
+  echo "./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target"
+  ./configure --prefix=/ --program-prefix=$prefix --host=$target --target=$target
   make
   make DESTDIR=$destination_dir install
   make DESTDIR=$package_install_dir install

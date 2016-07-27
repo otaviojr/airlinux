@@ -3,6 +3,7 @@
 stage="$1"
 destination="$2"
 arch="$3"
+cross_tools="$4"
 
 #Include our common functions
 . ./packages/common/functions
@@ -12,7 +13,6 @@ echo "Cross-Compiling binutils for $arch at $destination"
 download_dir="$destination/packages"
 destination_dir="$destination/dist"
 package_install_dir="$destination/deploy/packages/binutils"
-cflags=$(get_cflags_for_arch $arch)
 
 cd $download_dir
 if [ ! -d "binutils-2.26" ]; then
@@ -33,6 +33,11 @@ mkdir "build"
 cd "$download_dir/binutils-2.26/build"
 
 target=$(get_target_for_arch $arch)
+macro_target=$(get_macro_target_for_arch $arch)
+prefix=$(get_prefix_for_arch $arch)
+cflags=$(get_cflags_for_arch $arch)
+ldflags=$(get_ldflags_for_arch $arch)
+
 
 distro=$(get_distro_name)
 
@@ -53,6 +58,26 @@ elif [ "x$stage" == "xstage2" ]; then
   ../configure --prefix=$destination_dir --target=$target --enable-shared --enable-gold --enable-lto --enable-plugins --with-sysroot=$destination_dir
   make
   make install
+elif [ "x$stage" == "xsystem" ]; then
+  export CC=$prefix-gcc
+  export CXX=$prefix-g++
+  export AR=$prefix-ar
+  export RANLIB=$prefix-ranlib
+  export CFLAGS="$cflags --sysroot=$destination_dir -Wno-error=unused-const-variable -Wno-error=unused-function"
+  export CXXFLAGS="$cflags --sysroot=$destination_dir -Wno-error=unused-const-variable -Wno-error=unused-function"
+  export LDFLAGS="$ldflags --sysroot=$destination_dir"
+
+  export PATH=$PATH:$cross_tools/dist/bin
+
+  export SYSROOT=$destination_dir
+  export PKG_CONFIG_SYSROOT_DIR=$destination_dir
+  export PKG_CONFIG_PATH=$destination_dir/lib/pkgconfig
+
+  echo "../configure --prefix=/ --host=$target --target=$target --enable-gold --enable-lto --enable-plugins --enable-shared"
+  ../configure --prefix=/ --host=$target --target=$target --enable-shared --enable-gold --enable-lto --enable-plugins
+  make
+  make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

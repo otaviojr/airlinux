@@ -62,14 +62,14 @@ if [ ! -d "$destination_dir/usr/include" ]; then
   mkdir -p "$destination_dir/usr/include"
 fi
 
-export PATH=$PATH:$destination_dir/bin
-
 if [ "x$stage" == "xstage1" ]; then
+  export PATH=$PATH:$destination_dir/bin
   echo "../configure --target=$target --prefix=$destination_dir --with-glibc-version=2.23 --with-sysroot=$destination_dir --with-newlib --without-headers --with-local-prefix=$destination_dir --with-native-system-header-dir=$destination_dir/include --disable-nls --disable-shared --disable-multilib --disable-decimal-float --disable-threads --disable-libatomic --disable-libgomp --disable-libmpx --disable-libquadmath --disable-libssp --disable-libvtv --disable-libstdcxx --enable-languages=c,c++"
   ../configure --target=$target --prefix=$destination_dir --with-glibc-version=2.23 --with-sysroot=$destination_dir --with-newlib --without-headers --with-local-prefix=$destination_dir --with-native-system-header-dir=$destination_dir/include --disable-nls --disable-shared --disable-multilib --disable-decimal-float --disable-threads --disable-libatomic --disable-libgomp --disable-libmpx --disable-libquadmath --disable-libssp --disable-libvtv --disable-libstdcxx --enable-languages=c,c++
   make
   make install
 elif [ "x$stage" == "xstage2" ]; then
+  export PATH=$PATH:$destination_dir/bin
   CC=$prefix-gcc
   CXX=$prefix-g++
   AS=$prefix-as
@@ -84,15 +84,13 @@ elif [ "x$stage" == "xstage2" ]; then
   make
   make DESTDIR=$destination_dir install
 elif [ "x$stage" == "xsystem-libstdc++" ]; then
-  CC=$prefix-gcc
-  CXX=$prefix-g++
-  AS=$prefix-as
-  LD=$prefix-ld
-  AR=$prefix-ar
-  RANLIB=$prefix-ranlib
+  export CC=$prefix-gcc
+  export CXX=$prefix-g++
+  export AR=$prefix-ar
+  export RANLIB=$prefix-ranlib
   export CFLAGS="-I$destination_dir/include --sysroot=$destination_dir -isysroot=$destination_dir $cflags"
   export LDFLAGS="--sysroot=$destination_dir -isysroot=$destination_dir $cflags $ldflags"
-  export PATH=$PATH:$cross_tools/dist/bin
+  export PATH=$PATH:$cross_tools/dist/bin:$destination_dir/bin
 
   echo "../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0"
   ../libstdc++-v3/configure --host=$target --prefix=/ --disable-multilib --disable-nls --disable-libstdcxx-threads --disable-libstdcxx-pch --with-gxx-include-dir=/include/c++/6.1.0
@@ -100,22 +98,22 @@ elif [ "x$stage" == "xsystem-libstdc++" ]; then
   make LIBTOOL=$prefix-libtool
   make LIBTOOL=$prefix-libtool DESTDIR=$destination_dir install
 elif [ "x$stage" == "xstage3" ]; then
+  export PATH=$PATH:$destination_dir/bin
   CC=$prefix-gcc
   CXX=$prefix-g++
   AR=$prefix-ar
   RANLIB=$prefix-ranlib
-
   echo "../configure --target=$target --prefix=$destination_dir --with-local-prefix=$destination_dir --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared --with-sysroot=$destination_dir"
   ../configure --target=$target --prefix=$destination_dir --with-local-prefix=$destination_dir --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared --with-sysroot=$destination_dir
   make
   make install
 elif [ "x$stage" == "xsystem-lib" ]; then
-  CC=$prefix-gcc
-  CXX=$prefix-g++
-  AR=$prefix-ar
-  RANLIB=$prefix-ranlib
-  CFLAGS="$cflags --sysroot=$destination_dir"
-  LDFLAGS="$ldflags --sysroot=$destination_dir"
+  export CC=$prefix-gcc
+  export CXX=$prefix-g++
+  export AR=$prefix-ar
+  export RANLIB=$prefix-ranlib
+  export CFLAGS="$cflags --sysroot=$destination_dir"
+  export LDFLAGS="$ldflags --sysroot=$destination_dir"
   export PATH=$PATH:$cross_tools/dist/bin
 
   echo "../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
@@ -123,18 +121,32 @@ elif [ "x$stage" == "xsystem-lib" ]; then
   make all-target-libgcc
   make DESTDIR=$destination_dir install-target-libgcc
 elif [ "x$stage" == "xsystem" ]; then
-  CC=$prefix-gcc
-  CXX=$prefix-g++
-  AR=$prefix-ar
-  RANLIB=$prefix-ranlib
-  CFLAGS="$cflags --sysroot=$destination_dir"
-  LDFLAGS="$ldflags --sysroot=$destination_dir"
+  export CC_FOR_TARGET=$prefix-gcc
+  export CXX_FOR_TARGET=$prefix-g++
+  export LD_FOR_TARGET=$prefix-ld
+  export AR_FOR_TARGET=$prefix-ar
+  export RANLIB_FOR_TARGET=$prefix-ranlib
+  #TODO: We can not use $cflags. There are libs that will be built natively
+  #       and some flags will not work with the native gcc/g++
+  export CFLAGS_FOR_TARGET="--sysroot=$destination_dir"
+  export CXXFLAGS_FOR_TARGET="--sysroot=$destination_dir"
+  export LDFLAGS_FOR_TARGET="--sysroot=$destination_dir"
   export PATH=$PATH:$cross_tools/dist/bin
 
-  echo "../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared"
-  ../configure --host=$target --target=$target --prefix=/ --with-local-prefix=/ --with-native-system-header-dir=/include --enable-languages=c,c++ --disable-libgomp --disable-multilib --enable-shared
+  params=""
+  if [ "x$arch" == "xrpi" ]; then
+    params="--with-arch=armv7-a --with-fpu=neon-vfpv4 --with-float=softfp"
+  elif [ "x$arch" == "xrpi3" ]; then
+    params="--with-arch=armv7-a --with-fpu=neon-vfpv4 --with-float=softfp"
+  fi
+
+  #TODO: Check why libsanitizer and libvtv do not cross compile
+  echo "../configure --host=$target --target=$target $params --prefix=/ --with-local-prefix=/ --enable-languages=c,c++ --disable-libgomp --disable-libsanitizer --disable-libvtv --disable-multilib --enable-shared"
+  ../configure --host=$target --target=$target $params --prefix=/ --with-local-prefix=/ --enable-languages=c,c++ --disable-libgomp --disable-libsanitizer --disable-libvtv --disable-multilib --enable-shared
+
   make
   make DESTDIR=$destination_dir install
+  make DESTDIR=$package_install_dir install
 fi
 
 cd ..

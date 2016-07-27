@@ -39,10 +39,13 @@ packages: [
 { package: "wayland-protocols", script: "make" , parameters: ["system"]},
 { package: "pinonfree-videocore", script: "make", parameters: ["system-nonfree"] },
 { package: "qt", script: "make", parameters: ["system-nonfree"] },
+
+# TODO: Split plymouth to be used in text mode?
 { package: "fontconfig", script: "make" , parameters: ["system"]},
 { package: "pixman", script: "make" , parameters: ["system"]},
 { package: "cairo", script: "make" , parameters: ["system-qt"]},
 { package: "harfbuzz", script: "make" , parameters: ["system"]},
 { package: "pango", script: "make" , parameters: ["system"]},
 { package: "plymouth", script: "make" , parameters: ["system"]},
+#end
 ]
