@@ -1,0 +1,23 @@
+--- ./drivers/video/fbdev/core/fbmem.c	2016-07-28 23:47:44.950105192 -0300
++++ ./drivers/video/fbdev/core/fbmem.c	2016-07-29 00:23:55.449389331 -0300
+@@ -498,8 +498,8 @@
+ 		fb_set_logo(info, logo, logo_new, fb_logo.depth);
+ 	}
+
+-	image.dx = 0;
+-	image.dy = y;
++	//image.dx = 0;
++	//image.dy = y;
+ 	image.width = logo->width;
+ 	image.height = logo->height;
+
+@@ -510,6 +510,9 @@
+ 			fb_rotate_logo(info, logo_rotate, &image, rotate);
+ 	}
+
++	image.dx = (info->var.xres - image.width) / 2;
++	image.dy = (info->var.yres - image.height) / 2;
++
+ 	fb_do_show_logo(info, &image, rotate, n);
+
+ 	kfree(palette);

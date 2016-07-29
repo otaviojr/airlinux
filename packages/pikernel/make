@@ -36,6 +36,7 @@ fi
 #patch -p1 -N -i $current_dir/patches/rpi3.patch
 
 patch -p1 -N -i $current_dir/patches/bcm2709_defconfig.patch
+patch -p1 -N -i $current_dir/patches/fbmen.patch
 
 macro_target=$(get_macro_target_for_arch $arch)
 target=$(get_target_for_arch $arch)
