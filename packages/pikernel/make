@@ -38,6 +38,10 @@ fi
 patch -p1 -N -i $current_dir/patches/bcm2709_defconfig.patch
 patch -p1 -N -i $current_dir/patches/fbmen.patch
 
+echo "Customizing kernel logo"
+rm $download_dir/pikernel/drivers/video/logo/logo_linux_clut224.ppm
+cp -RLf $current_dir/files/logos/default.ppm $download_dir/pikernel/drivers/video/logo/logo_linux_clut224.ppm
+
 macro_target=$(get_macro_target_for_arch $arch)
 target=$(get_target_for_arch $arch)
 prefix=$(get_prefix_for_arch $arch)
